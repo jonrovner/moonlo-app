@@ -1,238 +1,297 @@
-import { Pressable, StyleSheet, Text, View, TextInput, Button, FlatList, TouchableOpacity, ViewComponent } from 'react-native'
-import React, {useState, useEffect} from 'react'
-import {useAuth0, Auth0Provider } from 'react-native-auth0';
-
-//import * as Location from 'expo-location';
+import { Pressable, Switch, StyleSheet, Text, View, TextInput, Button, TouchableOpacity, Animated, Easing, ImageBackground, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import Selector from './components/selector';
+import { fetchMovies, fetchBooks, fetchMusic } from './utils.js';
+import { useAuth0 } from 'react-native-auth0';
+import {Picker} from '@react-native-picker/picker'
 
 const Registration = () => {
-/* 
-    const [location, setLocation] = useState<Location.LocationObject | null>(null);
-    const [errorMsg, setErrorMsg] = useState<string | null>(null); */
-    
-    const {authorize, clearSession, user, error, isLoading} = useAuth0();
+  
+  const { authorize, user, error, getCredentials, isLoading } = useAuth0();
+  const [screen, setScreen] = useState(0);
+  const [movies, setMovies] = useState<string[]>([]);
+  const [books, setBooks] = useState<string[]>([]);
+  const [music, setMusic] = useState<string[]>([]);
+  const [yearOfBirth, setYearOfBirth] = useState('');
+  const [aboutMe, setAboutMe] = useState('');
+  const [gender, setGender] = useState('');
+  const [smoking, setSmoking] = useState(false);
+  const [kids, setKids] = useState<boolean>(false);
+  const [drink, setDrink] = useState<boolean>(false);
+  const [minAge, setMinAge] = useState<number>(18);
+  const [maxAge, setMaxAge] = useState<number>(150);
+  const [lookingFor, setLookingFor] = useState('other');
+  const [sun, setSun] = useState("")
+  const [moon, setMoon] = useState("")
+  const [asc, setAsc] = useState("")
 
-  const onLogin = async () => {
+
+  const toggleSmokingSwitch = () => setSmoking(previousState => !previousState);  
+  const toggleKidsSwitch = () => setKids(previousState => !previousState);  
+  const toggleDrinkSwitch = () => setDrink(previous => !previous)
+
+  async function checkSession() {
     try {
       await authorize();
+      await getCredentials();
     } catch (e) {
-      console.log(e);
+      console.log('Authentication error:', e);
     }
-  };
+  }
 
-  const onLogout = async () => {
-    try {
-      await clearSession();
-    } catch (e) {
-      console.log('Log out cancelled');
-    }
-  };
-/* 
-    useEffect(() => {
+  async function onSubmit() {
 
-        async function getCurrentLocation() {
-          
-          let { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') {
-            setErrorMsg('Permission to access location was denied');
-            return;
-          }
-    
-          let location = await Location.getCurrentPositionAsync({});
-          setLocation(location);
-        }
-    
-        getCurrentLocation();
-
-      }, []); */
-    
-      //console.log("location ", location);
-      /*
-       location  
-       {"coords": 
-         {"accuracy": 100, 
-         "altitude": 43.79999923706055, 
-         "altitudeAccuracy": 100, 
-         "heading": 0, 
-         "latitude": -34.5900522, 
-         "longitude": -58.4681273, 
-         "speed": 0
-         }, 
-         "mocked": false, 
-         "timestamp": 1740398161920}
-
-      */
-
-    const [name, setName] = useState("")
-    const [moon, setMoon] = useState("")
-    const [city, setCity] = useState("")
-    const [age, setAge] = useState("")
-    const [gender, setGender] = useState("")
-    const [looking, setLooking] = useState("")
-    const [movies, setMovies] = useState([
-      { "title": "Inception", "year": "2010" },
-      { "title": "The Matrix", "year": "1999" },
-      { "title": "Interstellar", "year": "2014" },
-      { "title": "Pulp Fiction", "year": "1994" },
-      { "title": "The Dark Knight", "year": "2008" },
-      { "title": "Forrest Gump", "year": "1994" },
-      { "title": "Fight Club", "year": "1999" },
-      { "title": "The Lord of the Rings: The Fellowship of the Ring", "year": "2001" },
-      { "title": "The Shawshank Redemption", "year": "1994" },
-      { "title": "Parasite", "year": "2019" }
-  ])
-  
-
-    const [query, setQuery] = useState("");
-    const [filteredMovies, setFilteredMovies] = useState([""]);
-    const [selectedMovies, setSelectedMovies] = useState<string[]>([]);
-  
-    const handleInputChange = (text: string) => {
-
-      setQuery(text);
-      
-      if (text.length > 0) {
-        const results = movies.filter((movie) =>
-          movie.title.toLowerCase().includes(text.toLowerCase())
-        ).map((movie) => movie.title);
-        setFilteredMovies(results);
-      } else {
-        setFilteredMovies([]);
-      }
-    };
-
-    const handleMovieSelection = (movie: string) => {
-
-      setSelectedMovies(selectedMovies.concat(movie));
-      setQuery("");
-      setFilteredMovies([]);
+    const data = {
+      name: user?.name,
+      email: user?.email,
+      location: {latitude: user?.lat, logitude:user?.lon},
+      city:user?.city,
+      movies,
+      books,
+      music,
+      yearOfBirth,
+      aboutMe,
+      gender,
+      lookingFor,
+      smoking,
+      drink,
+      kids,
+      minAge,
+      maxAge,
+      sun,
+      moon,
+      asc
 
     }
 
-    const handleMovieRemoval = (movie: string) => {
-      console.log("romoving movie", movie);
-      
-      setSelectedMovies(selectedMovies.filter((filtermovie) => movie !== filtermovie));
+    let response = await fetch('http://localhost:3001/api/users', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+    console.log('RESPONSE :', response);
     
+
+
+  } 
+
+  return (
+    <>
+    <ImageBackground
+     source={require('../assets/images/background.png')}
+     style={styles.background_image}
+     resizeMode="cover"
+    >
     
-    }
-  
-    return (
-      <Auth0Provider
-          domain="dev-jrovner.us.auth0.com"
-          clientId="DG1DGX6d8luYCJ4etHqNFLhuDmoZcuxM"
-          >
-      
-      <View style={styles.container}>
-        
-      
-          <View style={styles.inputField}>
-            <Text style={styles.inputLabel}>What are your favourite movies</Text>
-            <View style={styles.inputGroup}>
-              <TextInput style={styles.input} placeholder='enter a word' onChangeText={handleInputChange}></TextInput>
-              <Text style={styles.inputButton} >✓</Text>
-            
-            </View>
+    {error && <Text style={styles.errorText}>Authentication error: {error.description}</Text>}
+      {isLoading && <Text style={styles.loadingText}>Loading...</Text>}
+     
 
-            {filteredMovies.length > 0 && (
-            
-            <FlatList 
-              data={filteredMovies}
-              contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}
-              renderItem={({ item }) => (
-                <Pressable style={styles.suggestion} onPress={()=>handleMovieSelection(item)}>
-                  <Text>{item}</Text>
-                </Pressable>
-                
-              )}
-              />
-            
-            )}
-            {selectedMovies.length > 0 && (
-
-            <FlatList
-             data={selectedMovies}
-             contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}
-             renderItem={({ item }) => (
-                <View key={item} style={styles.selectedMovie} >
-                  <Text style={styles.selectedMovieText}>{item.slice(0,20)}</Text>
-                  <TouchableOpacity style={styles.removeButton} onPress={()=>handleMovieRemoval(item)}> 
-                    <Text>×</Text>
-                  </TouchableOpacity>
-                </View>
-                )}
-                />
-             
-              )}
-            
+      {screen === 0 && user && (
+        <View style={styles.formContainer}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Name</Text>
+            <TextInput style={styles.input} value={user.name} editable={false} />
           </View>
-          <Button title={"submit"} />
-        
-    </View>
-    </Auth0Provider>
-  )
-}
 
-export default Registration
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>City</Text>
+            <TextInput style={styles.input} value={user.city} editable={false} />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Year of Birth</Text>
+            <TextInput style={styles.input} placeholder="Enter your year of birth" value={yearOfBirth} onChangeText={setYearOfBirth} keyboardType="numeric" />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>Gender</Text>
+            <View style={styles.radioGroup}>
+              <TouchableOpacity style={styles.radioButton} onPress={() => setGender('Male')}>
+                <Text style={gender === 'Male' ? styles.radioSelected : styles.radioText}>Male</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.radioButton} onPress={() => setGender('Female')}>
+                <Text style={gender === 'Female' ? styles.radioSelected : styles.radioText}>Female</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.radioButton} onPress={() => setGender('Other')}>
+                <Text style={gender === 'Other' ? styles.radioSelected : styles.radioText}>Other</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.inputLabel}>About Me</Text>
+            <TextInput style={[styles.input, styles.textarea]} placeholder="Write a short description about yourself" value={aboutMe} onChangeText={setAboutMe} multiline />
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={() => setScreen(1)}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {screen === 1 && (
+        
+         <View style={styles.formContainer}>
+            <View style={styles.inputGroup}>
+              <Image source={require('../assets/images/moon3d.png')} style={styles.input_image} />
+              <Text style={styles.inputLabel}>Moon</Text>
+              <TextInput style={styles.input} onChangeText={setMoon} />
+            </View>
+            <View style={styles.inputGroup}>
+              <Image source={require('../assets/images/sun3d.png')} style={styles.input_image} />
+              <Text style={styles.inputLabel}>Sun</Text>
+              <TextInput style={styles.input}  onChangeText={setSun}/>
+            </View>
+            <View style={styles.inputGroup}>
+              <Image source={require('../assets/images/asc3d.png')} style={styles.input_image} />
+              <Text style={styles.inputLabel}>Ascendant</Text>
+              <TextInput style={styles.input} onChangeText={setAsc} />
+            </View>
+            <TouchableOpacity style={styles.button} onPress={() => setScreen(2)}>
+            <Text style={styles.buttonText}>Next</Text>
+            </TouchableOpacity>
+
+          </View>
+        
+      )}
+
+      {screen === 2 && (
+        <View style={styles.formContainer}>
+          <Text style={styles.formTitle}>Taste</Text>
+         
+          <Selector itemName="movie" items={movies} setSelection={setMovies} onSearch={fetchMovies} />
+          <Selector itemName="book" items={books} setSelection={setBooks} onSearch={fetchBooks} />          
+          <Selector itemName="music" items={music} setSelection={setMusic} onSearch={fetchMusic} />
+          
+          <TouchableOpacity style={styles.button} onPress={() => setScreen(3)}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {screen === 3 && (
+        <>
+        <Text style={styles.formTitle}>Deal Brakers</Text>
+        <View style={styles.formContainer}>
+        <View style={styles.dealbraker}>
+          <Text>Looking for</Text>
+          <Picker
+            selectedValue={lookingFor}
+            onValueChange={(itemValue, itemIndex) =>
+               setLookingFor(itemValue)
+            }
+            style={styles.picker}
+            itemStyle={styles.picker_item}
+            mode='dropdown'
+          >
+            <Picker.Item label="Male" value="male" />
+            <Picker.Item label="Female" value="female" />
+            <Picker.Item label="Other" value="other" />
+          </Picker>
+          <Text>{lookingFor}</Text>
+
+        </View>
+        <View style={styles.dealbraker}>
+         <Text>Smoking</Text> 
+         <Switch
+          trackColor={{false: 'black', true: 'white'}}
+          thumbColor={smoking ? 'green' : 'red'}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleSmokingSwitch}
+          value={smoking}
+        />
+         <Text>{smoking ? 'No problem': 'No way'}</Text>
+        </View>
+        <View style={styles.dealbraker}>
+         <Text>Children</Text> 
+         <Switch
+          trackColor={{false: 'black', true: 'white'}}
+          thumbColor={kids ? 'green' : 'red'}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleKidsSwitch}
+          value={kids}
+        />
+           <Text>{kids ? 'No problem': 'No way'}</Text>
+        </View>
+        <View style={styles.dealbraker}>
+         <Text>Alcohol</Text> 
+         <Switch
+          trackColor={{false: 'black', true: 'white'}}
+          thumbColor={drink ? 'green' : 'red'}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={toggleDrinkSwitch}
+          value={drink}
+          />
+          <Text>{drink ? 'No problem': 'No way'}</Text>
+        </View>
+        <View style={styles.dealbraker}>
+          <Text>Age</Text>
+          <TextInput style={styles.age_input}  />
+          <Text>TO</Text>
+          <TextInput style={styles.age_input}  />
+
+        </View>
+        
+        <TouchableOpacity style={styles.button} onPress={() => setScreen(4)}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+          </View>
+        </>
+      )}
+
+      {screen === 4 && (
+        <View style={styles.summaryContainer}>
+          <Text style={styles.summaryText}>Summary</Text>
+          <Text>Movies: {movies.join(', ')}</Text>
+          <Text>Books: {books.join(', ')}</Text>
+          <Text>Music: {music.join(', ')}</Text>
+          <Text>Year of Birth: {yearOfBirth}</Text>
+          <Text>Gender: {gender}</Text>
+          <Text>About Me: {aboutMe}</Text>
+          <Button title="Back" onPress={() => setScreen(3)} />
+          <Button title="Submit" onPress={onSubmit} />
+        </View>
+      )}
+    
+    
+    
+    </ImageBackground>
+    </>
+      
+    
+    
+
+
+   
+  );
+};
 
 const styles = StyleSheet.create({
+  container: { flex: 1,  backgroundColor: '#CEC4D810', },
+  scrollViewContainer: { padding: 20, alignItems: 'center' },
+  formContainer: { padding:20, width: '100%' },
+  formTitle:{marginBlockStart:20,alignSelf:'center', textAlign:'center', fontWeight:'bold', marginBottom:15},
+  inputGroup: { marginBottom: 15 },
+  inputLabel: { fontWeight: 'bold', marginBottom: 5 },
+  input: { backgroundColor: '#A7A3CA', padding: 10, borderRadius: 5 },
+  textarea: { height: 100, textAlignVertical: 'top' },
+  button: { marginTop: 20, backgroundColor: '#161954', padding: 15, borderRadius: 10, alignItems: 'center' },
+  buttonText: { color: '#FFF', fontWeight: 'bold' },
+  radioGroup: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
+  radioButton: { padding: 10 },
+  radioText: { color: '#333' },
+  radioSelected: { color: '#8a9ae0', fontWeight: 'bold' },
+  errorText:{color:'red'},
+  loadingText:{color:'green'},
+  screenControls:{display:'flex', flexDirection:'row'},
+  summaryContainer:{backgroundColor:'#A7A3CA'},
+  summaryText:{color:'black'},
+  input_image:{width:100, height:100, alignSelf:'center'},
+  dealbraker:{width:'100%', display:'flex', flexDirection:'row', padding:10, backgroundColor:'#A7A3CA30', marginBlock:15, justifyContent:'space-between', alignItems:'center' },
+  picker:{padding:10},
+  picker_item:{padding:10, backgroundColor:"red"},
+  background_image:{width:'100%', height:'100%', },
+  age_input:{ width:'20%', backgroundColor: '#A7A3CA', height:50}
+});
 
-    input:{
-        flex:8,
-        padding:10,
-        margin:5,
-        backgroundColor:'white',
-        borderRadius:10
-    },
-    inputButton:{
-        flex:1,
-        padding:10,
-        textAlign:'center',
-        margin:5,
-        backgroundColor:'#8a9ae0',
-        borderRadius:10
-    },
-
-    inputLabel:{
-        textAlign: 'left',
-        fontSize:12,
-        fontWeight:'800',
-        marginBlock: 5
-    },
-    container: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      paddingTop: 50,
-      height:10,
-      backgroundColor: '#F5FCFF',
-      alignItems: 'center',
-      justifyContent:"flex-start"
-    },
-    inputField:{
-      width: '90%',
-      marginTop: 10,
-      padding: 10,
-      backgroundColor:'#8A9AE066',
-      borderRadius: 10,
-    
-    },
-    inputGroup: {
-      display: 'flex',
-      flexDirection: 'row',
-      width: '100%',
-      justifyContent: 'space-between',
-    },
-    preview: {
-      padding:5,
-      backgroundColor: 'pink',
-      flex: 1,
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-
-    },
-    suggestion: {padding: 10, borderBottomWidth: 1, borderColor: "#ccc" },
-    selectedMovieList:{zIndex:0},
-    selectedMovie:{display:'flex', flexDirection:'row', gap:10, padding:10, backgroundColor:'#ECD4E6B2', color:'black', borderRadius:10, alignItems:'center', justifyContent:'space-between'},
-    selectedMovieText:{fontSize:12, fontWeight:'800', color:'black'},
-    removeButton:{textAlign:'center', borderColor:'red', borderWidth:1, padding:5, borderRadius:15},
-})
+export default Registration;

@@ -50,10 +50,9 @@
         {
           "domain": "dev-jrovner.us.auth0.com"
         }
-      ]
+      ],
+      "expo-font"
     ],
-    
-     
     "extra": {
       "router": {
         "origin": false
