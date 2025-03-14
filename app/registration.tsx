@@ -6,12 +6,27 @@ import { useAuth0 } from 'react-native-auth0';
 import {Picker} from '@react-native-picker/picker'
 
 const Registration = () => {
-  //auth
+ 
+  //auth0
   const { authorize, user, error, getCredentials, isLoading } = useAuth0();
   
+  async function checkSession() {
+    if (!user){
+      try {
+        await authorize();
+        await getCredentials();
+      } catch (e) {
+        console.log('Authentication error:', e);
+      }
+    }
+    
+  }
+  useEffect(()=>{
+    checkSession()
+  }, [])
 
-  //profile attributes
-  const [screen, setScreen] = useState(0);
+  
+  //non-auth0 profile attributes
   const [movies, setMovies] = useState<string[]>([]);
   const [books, setBooks] = useState<string[]>([]);
   const [music, setMusic] = useState<string[]>([]);
@@ -28,24 +43,142 @@ const Registration = () => {
   const [moon, setMoon] = useState("")
   const [asc, setAsc] = useState("")
 
+  //errors from input validations
+  const [errorMessage, setErrorMsg] = useState<string[]>([])
 
+  //screen navigation
+  const [screen, setScreen] = useState(0);
+
+  //input toggles  
   const toggleSmokingSwitch = () => setSmoking(previousState => !previousState);  
   const toggleKidsSwitch = () => setKids(previousState => !previousState);  
   const toggleDrinkSwitch = () => setDrink(previous => !previous)
 
-  async function checkSession() {
-    try {
-      await authorize();
-      await getCredentials();
-    } catch (e) {
-      console.log('Authentication error:', e);
-    }
-  }
 
+  //input validations
+
+  const validateScreen0 = () => {
+    const errors = []; 
+  
+    const year = parseInt(yearOfBirth);
+  
+    if (isNaN(year) || year < 1910 || year > 2007 || yearOfBirth === "") {
+      errors.push("You need a valid year");
+    }
+    
+    if (!(gender === "Male" || gender === "Female" || gender === "Other")) {
+      errors.push("Gender must be Male, Female or Other");
+    }
+    
+    if (aboutMe.length < 16) { 
+      errors.push("A self-description is required (at least 16 characters)");
+    }
+    
+    return errors;
+  };
+  const onSubmitScreen0 = async () => {
+    const errors = validateScreen0();
+    setErrorMsg(errors); // Update state with all errors at once
+    if (errors.length === 0) {
+      console.log("Form is valid, proceed with submission.");
+      setScreen(1)
+    } else {
+      console.log("ERRORS:", errors);
+    }
+  };
+
+  const validateScreen1 = () => {
+    const validSigns = [
+      'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
+    ];
+    const errors = [];
+  
+    const cleanSign = (sign:string) => sign.trim().toLowerCase();
+    const isValidSign = (sign:string) => validSigns.map(s => s.toLowerCase()).includes(cleanSign(sign));
+  
+    if (!isValidSign(sun)) {
+      errors.push('Invalid Sun sign.');
+    }
+  
+    if (!isValidSign(moon)) {
+      errors.push('Invalid Moon sign.');
+    }
+  
+    if (!isValidSign(asc)) {
+      errors.push('Invalid Ascendant sign.');
+    }
+  
+    return errors;
+  };
+  const onSubmitScreen1 = () => {
+    const errors = validateScreen1();
+    setErrorMsg(errors); // Update state with all errors at once
+    if (errors.length === 0) {
+      console.log('Screen 1 is valid, proceeding to the next screen.');
+      setScreen(2);
+    } else {
+      console.log('Screen 1 Errors:', errors);
+    }
+  };
+  const validateScreen2 = () => {
+    let errors = []
+    if(movies.length < 1){
+      errors.push("we need at least 1 movie")
+    }
+    if(books.length < 1){
+      errors.push("we need at least 1 book")
+    }
+    if(music.length < 1){
+      errors.push("we need at least 1 music")
+    }
+    return errors
+
+  };
+  const onSubmitScreen2 = () => {
+    const errors = validateScreen2();
+    if (errors.length === 0){
+      console.log("Form is valid, proceed with submission.");
+      setScreen(3)
+
+    }
+  };
+  const validateScreen3 = () => {
+    const errors = []
+    let min = parseInt(minAge)
+    let max = parseInt(maxAge)
+
+    if(!["Male","Female","Other"].includes(lookingFor)){
+      errors.push("Need to select what you're looking for")
+    }
+    if( isNaN(min) || min < 18 ){
+      errors.push("we need a valid min age")
+    }
+    if(isNaN(max) || max > 100){
+      errors.push("we need a valid max age")
+    }
+    return errors
+
+  };
+  const onSubmitScreen3 = () =>{
+    const errors = validateScreen3()
+    if (errors.length === 0){
+      setScreen(4)
+    }
+    else{
+
+      console.log("errors in screen 3", errors);
+      
+    }
+    
+
+  };
+
+  //submit profile
   async function onSubmit() {
     console.log("SUBMITING");
     
     const data = {
+      auth0_id:user?.id,
       name: user?.name,
       email: user?.email,
       location: {latitude: user?.lat, logitude:user?.lon},
@@ -87,11 +220,7 @@ const Registration = () => {
       
     }
      
-    
-    
-
-
-  }   
+  };
 
   return (
   <>
@@ -101,12 +230,18 @@ const Registration = () => {
      style={styles.background_image}
      resizeMode="cover"
     > 
-    
+      {errorMessage.length > 0 && (
+        errorMessage.map(error => <Text key={error}>{error}</Text>)
+      )}
+
+
       {error && <Text style={styles.errorText}>Authentication error</Text>}
       {isLoading && <Text style={styles.loadingText}>Loading...</Text>}
      
 
       {screen === 0 && (
+        <KeyboardAvoidingView>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Name</Text>
@@ -143,10 +278,13 @@ const Registration = () => {
             <TextInput style={[styles.input, styles.textarea]} placeholder="Write a short description about yourself" value={aboutMe} onChangeText={setAboutMe} multiline />
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={() => setScreen(1)}>
+          <TouchableOpacity style={styles.button} onPress={onSubmitScreen0}>
             <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
         </View>
+        </ScrollView>
+        </KeyboardAvoidingView>
+        
       )}
 
       {screen === 1 && (
@@ -168,7 +306,7 @@ const Registration = () => {
               <Text style={styles.inputLabel}>Ascendant</Text>
               <TextInput style={styles.input} onChangeText={setAsc} />
             </View>
-            <TouchableOpacity style={styles.button} onPress={() => setScreen(2)}>
+            <TouchableOpacity style={styles.button} onPress={onSubmitScreen1}>
             <Text style={styles.buttonText}>Next</Text>
             </TouchableOpacity>
 
@@ -178,6 +316,8 @@ const Registration = () => {
       )}
 
       {screen === 2 && (
+        <KeyboardAvoidingView>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.formContainer}>
           <Text style={styles.formTitle}>Taste</Text>
          
@@ -185,10 +325,12 @@ const Registration = () => {
           <Selector itemName="book" items={books} setSelection={setBooks} onSearch={fetchBooks} />          
           <Selector itemName="music" items={music} setSelection={setMusic} onSearch={fetchMusic} />
           
-          <TouchableOpacity style={styles.button} onPress={() => setScreen(3)}>
+          <TouchableOpacity style={styles.button} onPress={onSubmitScreen2}>
             <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
         </View>
+        </ScrollView>
+        </KeyboardAvoidingView>
       )}
 
       {screen === 3 && (
@@ -254,7 +396,7 @@ const Registration = () => {
 
         </View>
         
-        <TouchableOpacity style={styles.button} onPress={() => setScreen(4)}>
+        <TouchableOpacity style={styles.button} onPress={onSubmitScreen3}>
             <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
           </View>
