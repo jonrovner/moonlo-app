@@ -59,7 +59,8 @@ export async function fetchBooks (query) {
 };
 
 export async function fetchMusic (query) {
-  if (!query) return [];
+  return []
+  /* if (!query) return [];
 
   try {
     const response = await fetch(`https://api.deezer.com/search?q=artist:${encodeURIComponent(query)}`);
@@ -74,7 +75,7 @@ export async function fetchMusic (query) {
   } catch (error) {
     console.error("Error fetching music:", error);
     return [];
-  }
+  } */
 };
 
 

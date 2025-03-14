@@ -60,7 +60,7 @@ const Selector: React.FC<SelectorProps> = ({ itemName, onSearch, setSelection, i
          <FlatList
           data={filteredItems}
           style={styles.selectedMovieList}
-          contentContainerStyle={{ alignItems: 'center', justifyContent: 'flex-start' }}
+          contentContainerStyle={{ alignItems: 'flex-start', justifyContent: 'flex-start' }}
           renderItem={({ item }) => (
             <Pressable style={styles.suggestion} onPress={() => handleItemSelection(item)}>
               <Text>{item}</Text>

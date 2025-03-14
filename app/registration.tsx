@@ -1,4 +1,4 @@
-import { Pressable, Switch, StyleSheet, Text, View, TextInput, Button, TouchableOpacity, Animated, Easing, ImageBackground, Image } from 'react-native';
+import { ScrollView, KeyboardAvoidingView, Switch, StyleSheet, Text, View, TextInput, Button, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import Selector from './components/selector';
 import { fetchMovies, fetchBooks, fetchMusic } from './utils.js';
@@ -6,8 +6,11 @@ import { useAuth0 } from 'react-native-auth0';
 import {Picker} from '@react-native-picker/picker'
 
 const Registration = () => {
-  
+  //auth
   const { authorize, user, error, getCredentials, isLoading } = useAuth0();
+  
+
+  //profile attributes
   const [screen, setScreen] = useState(0);
   const [movies, setMovies] = useState<string[]>([]);
   const [books, setBooks] = useState<string[]>([]);
@@ -18,8 +21,8 @@ const Registration = () => {
   const [smoking, setSmoking] = useState(false);
   const [kids, setKids] = useState<boolean>(false);
   const [drink, setDrink] = useState<boolean>(false);
-  const [minAge, setMinAge] = useState<number>(18);
-  const [maxAge, setMaxAge] = useState<number>(150);
+  const [minAge, setMinAge] = useState<string>("");
+  const [maxAge, setMaxAge] = useState<string>("");
   const [lookingFor, setLookingFor] = useState('other');
   const [sun, setSun] = useState("")
   const [moon, setMoon] = useState("")
@@ -40,7 +43,8 @@ const Registration = () => {
   }
 
   async function onSubmit() {
-
+    console.log("SUBMITING");
+    
     const data = {
       name: user?.name,
       email: user?.email,
@@ -61,41 +65,57 @@ const Registration = () => {
       sun,
       moon,
       asc
-
     }
 
-    let response = await fetch('http://localhost:3001/api/users', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    })
-    console.log('RESPONSE :', response);
+    try {
+      fetch('http://192.168.0.3:3001/api/users', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      }).then(response => { response.json()})
+        .then(json => {
+
+          console.log("JSON", json);
+          
+        })
+
+    }catch(e){
+      console.log("ERROR POSTING", e);
+      
+    }
+     
+    
     
 
 
-  } 
+  }   
 
   return (
-    <>
+  <>
+
     <ImageBackground
      source={require('../assets/images/background.png')}
      style={styles.background_image}
      resizeMode="cover"
-    >
+    > 
     
-    {error && <Text style={styles.errorText}>Authentication error: {error.description}</Text>}
+      {error && <Text style={styles.errorText}>Authentication error</Text>}
       {isLoading && <Text style={styles.loadingText}>Loading...</Text>}
      
 
-      {screen === 0 && user && (
+      {screen === 0 && (
         <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Name</Text>
-            <TextInput style={styles.input} value={user.name} editable={false} />
+            <TextInput style={styles.input} value={user?.name} editable={false} />
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>City</Text>
-            <TextInput style={styles.input} value={user.city} editable={false} />
+            <TextInput style={styles.input} value={user?.city} editable={false} />
           </View>
 
           <View style={styles.inputGroup}>
@@ -130,7 +150,8 @@ const Registration = () => {
       )}
 
       {screen === 1 && (
-        
+        <KeyboardAvoidingView>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
          <View style={styles.formContainer}>
             <View style={styles.inputGroup}>
               <Image source={require('../assets/images/moon3d.png')} style={styles.input_image} />
@@ -143,7 +164,7 @@ const Registration = () => {
               <TextInput style={styles.input}  onChangeText={setSun}/>
             </View>
             <View style={styles.inputGroup}>
-              <Image source={require('../assets/images/asc3d.png')} style={styles.input_image} />
+              <Image source={require('../assets/images/asc3d.png')} style={styles.asc_image} />
               <Text style={styles.inputLabel}>Ascendant</Text>
               <TextInput style={styles.input} onChangeText={setAsc} />
             </View>
@@ -152,7 +173,8 @@ const Registration = () => {
             </TouchableOpacity>
 
           </View>
-        
+          </ScrollView>
+          </KeyboardAvoidingView>
       )}
 
       {screen === 2 && (
@@ -226,9 +248,9 @@ const Registration = () => {
         </View>
         <View style={styles.dealbraker}>
           <Text>Age</Text>
-          <TextInput style={styles.age_input}  />
+          <TextInput style={styles.age_input}  onChangeText={setMinAge}/>
           <Text>TO</Text>
-          <TextInput style={styles.age_input}  />
+          <TextInput style={styles.age_input}  onChangeText={setMaxAge} />
 
         </View>
         
@@ -255,19 +277,16 @@ const Registration = () => {
     
     
     
-    </ImageBackground>
+    </ImageBackground> 
     </>
       
     
-    
-
-
-   
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1,  backgroundColor: '#CEC4D810', },
+  container: { backgroundColor: 'black', },
+  scrollContainer:{flexGrow:1},
   scrollViewContainer: { padding: 20, alignItems: 'center' },
   formContainer: { padding:20, width: '100%' },
   formTitle:{marginBlockStart:20,alignSelf:'center', textAlign:'center', fontWeight:'bold', marginBottom:15},
@@ -287,6 +306,7 @@ const styles = StyleSheet.create({
   summaryContainer:{backgroundColor:'#A7A3CA'},
   summaryText:{color:'black'},
   input_image:{width:100, height:100, alignSelf:'center'},
+  asc_image:{width:200, height:100, alignSelf:'center'},
   dealbraker:{width:'100%', display:'flex', flexDirection:'row', padding:10, backgroundColor:'#A7A3CA30', marginBlock:15, justifyContent:'space-between', alignItems:'center' },
   picker:{padding:10},
   picker_item:{padding:10, backgroundColor:"red"},
