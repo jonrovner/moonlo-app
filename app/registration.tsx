@@ -4,11 +4,14 @@ import Selector from './components/selector';
 import { fetchMovies, fetchBooks, fetchMusic } from './utils.js';
 import { useAuth0 } from 'react-native-auth0';
 import {Picker} from '@react-native-picker/picker'
+import { router } from 'expo-router';
 
 const Registration = () => {
  
   //auth0
   const { authorize, user, error, getCredentials, isLoading } = useAuth0();
+  console.log("user: ", user);
+  
   
   async function checkSession() {
     if (!user){
@@ -19,13 +22,13 @@ const Registration = () => {
         console.log('Authentication error:', e);
       }
     }
-    
   }
+
   useEffect(()=>{
     checkSession()
   }, [])
 
-  
+
   //non-auth0 profile attributes
   const [movies, setMovies] = useState<string[]>([]);
   const [books, setBooks] = useState<string[]>([]);
@@ -38,7 +41,7 @@ const Registration = () => {
   const [drink, setDrink] = useState<boolean>(false);
   const [minAge, setMinAge] = useState<string>("");
   const [maxAge, setMaxAge] = useState<string>("");
-  const [lookingFor, setLookingFor] = useState('other');
+  const [lookingFor, setLookingFor] = useState("");
   const [sun, setSun] = useState("")
   const [moon, setMoon] = useState("")
   const [asc, setAsc] = useState("")
@@ -76,7 +79,7 @@ const Registration = () => {
     
     return errors;
   };
-  const onSubmitScreen0 = async () => {
+  const onSubmitScreen0 = () => {
     const errors = validateScreen0();
     setErrorMsg(errors); // Update state with all errors at once
     if (errors.length === 0) {
@@ -160,7 +163,9 @@ const Registration = () => {
 
   };
   const onSubmitScreen3 = () =>{
+
     const errors = validateScreen3()
+    
     if (errors.length === 0){
       setScreen(4)
     }
@@ -178,7 +183,7 @@ const Registration = () => {
     console.log("SUBMITING");
     
     const data = {
-      auth0_id:user?.id,
+      auth0_id:user?.sub,
       name: user?.name,
       email: user?.email,
       location: {latitude: user?.lat, logitude:user?.lon},
@@ -208,23 +213,22 @@ const Registration = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data)
-      }).then(response => { response.json()})
-        .then(json => {
+      }).then(response => { response.json().then(json => {
 
-          console.log("JSON", json);
-          
-        })
+        console.log("JSON", json);
+
+        router.navigate('/home/profile')
+        
+      })})
+        
 
     }catch(e){
-      console.log("ERROR POSTING", e);
-      
+      console.log("ERROR POSTING", e);   
     }
-     
   };
 
   return (
   <>
-
     <ImageBackground
      source={require('../assets/images/background.png')}
      style={styles.background_image}
@@ -348,9 +352,9 @@ const Registration = () => {
             itemStyle={styles.picker_item}
             mode='dropdown'
           >
-            <Picker.Item label="Male" value="male" />
-            <Picker.Item label="Female" value="female" />
-            <Picker.Item label="Other" value="other" />
+            <Picker.Item label="Male" value="Male" />
+            <Picker.Item label="Female" value="Female" />
+            <Picker.Item label="Other" value="Other" />
           </Picker>
           <Text>{lookingFor}</Text>
 
@@ -404,17 +408,25 @@ const Registration = () => {
       )}
 
       {screen === 4 && (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.summaryContainer}>
-          <Text style={styles.summaryText}>Summary</Text>
-          <Text>Movies: {movies.join(', ')}</Text>
-          <Text>Books: {books.join(', ')}</Text>
-          <Text>Music: {music.join(', ')}</Text>
-          <Text>Year of Birth: {yearOfBirth}</Text>
-          <Text>Gender: {gender}</Text>
+          <Text style={styles.summaryTitle}>Summary</Text>
+          <Text style={styles.summaryText}>Name: {user?.name}</Text>
+          <Text style={styles.summaryText}>Gender: {gender}</Text>
+          <Text style={styles.summaryText}>Born: {yearOfBirth}</Text>
+          <Text style={styles.summaryText}>Looking for: {lookingFor}</Text>
+          <Text style={styles.summaryText}>Location: {user?.city}</Text>
+          <Text style={styles.summaryText}>Sun: {sun}</Text>
+          <Text style={styles.summaryText}>Moon: {moon}</Text>
+          <Text style={styles.summaryText}>Ascendant: {asc}</Text>
+          <Text style={styles.summaryText}>Movies: {movies.join(', ')}</Text>
+          <Text style={styles.summaryText}>Books: {books.join(', ')}</Text>
+          <Text style={styles.summaryText}>Music: {music.join(', ')}</Text>
           <Text>About Me: {aboutMe}</Text>
-          <Button title="Back" onPress={() => setScreen(3)} />
+          <Button title="Back" onPress={() => setScreen(0)} />
           <Button title="Submit" onPress={onSubmit} />
         </View>
+        </ScrollView>
       )}
     
     
@@ -445,15 +457,16 @@ const styles = StyleSheet.create({
   errorText:{color:'red'},
   loadingText:{color:'green'},
   screenControls:{display:'flex', flexDirection:'row'},
-  summaryContainer:{backgroundColor:'#A7A3CA'},
-  summaryText:{color:'black'},
+  summaryContainer:{display:'flex'},
   input_image:{width:100, height:100, alignSelf:'center'},
   asc_image:{width:200, height:100, alignSelf:'center'},
   dealbraker:{width:'100%', display:'flex', flexDirection:'row', padding:10, backgroundColor:'#A7A3CA30', marginBlock:15, justifyContent:'space-between', alignItems:'center' },
   picker:{padding:10},
   picker_item:{padding:10, backgroundColor:"red"},
   background_image:{width:'100%', height:'100%', },
-  age_input:{ width:'20%', backgroundColor: '#A7A3CA', height:50}
+  age_input:{ width:'20%', backgroundColor: '#A7A3CA', height:50},
+  summaryTitle:{fontSize:40, textAlign:'center',margin:'5%'},
+  summaryText:{margin:10, padding:10, backgroundColor:'#A7A3CA', borderRadius:5}
 });
 
 export default Registration;

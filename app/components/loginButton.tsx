@@ -1,13 +1,16 @@
 import { StyleSheet, Text, Pressable } from 'react-native'
 import React from 'react'
 import {useAuth0} from 'react-native-auth0';
+import { router } from 'expo-router';
 
 const LoginButton = () => {
 
  const {authorize} = useAuth0();
-    const onPress = async () => {
+
+ const onPress = async () => {
         try {
             await authorize();
+            router.navigate('/home/profile')
         } catch (e) {
             console.log(e);
         }

@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, ImageBackground, Pressable, Button } from 'react-native'
 import { Link } from 'expo-router'
 import React from 'react'
-import {useAuth0} from 'react-native-auth0';
 import ImageCarousel from './components/carousel'
 import LoginButton from './components/loginButton';
 const image = require('../assets/images/background.png')
