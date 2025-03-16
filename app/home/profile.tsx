@@ -1,6 +1,7 @@
 import { StyleSheet, Image, Text, View, ImageBackground, ScrollView} from 'react-native'
 import React, {useState, useEffect}from 'react'
 import { useAuth0 } from 'react-native-auth0'
+import Logout from '../components/logout'
 
 interface User {
   auth0_id:string
@@ -143,6 +144,7 @@ const profile = () => {
           </View>
         </View>
       </View>
+      <Logout />
     </ScrollView>
     </ImageBackground>
   )
