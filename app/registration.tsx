@@ -3,8 +3,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import Selector from './components/selector';
 import { fetchMovies, fetchBooks, fetchMusic } from './utils.js';
 import { useAuth0 } from 'react-native-auth0';
-import {Picker} from '@react-native-picker/picker'
 import { router } from 'expo-router';
+import ProfilePictureUploadScreen from './components/pickImage'
+import * as FileSystem from 'expo-file-system';
 
 const Registration = () => {
  
@@ -36,15 +37,30 @@ const Registration = () => {
   const [yearOfBirth, setYearOfBirth] = useState('');
   const [aboutMe, setAboutMe] = useState('');
   const [gender, setGender] = useState('');
-  const [smoking, setSmoking] = useState(false);
-  const [kids, setKids] = useState<boolean>(false);
-  const [drink, setDrink] = useState<boolean>(false);
-  const [minAge, setMinAge] = useState<string>("");
-  const [maxAge, setMaxAge] = useState<string>("");
-  const [lookingFor, setLookingFor] = useState("");
   const [sun, setSun] = useState("")
   const [moon, setMoon] = useState("")
   const [asc, setAsc] = useState("")
+  const [picture, setPicture] = useState<string>("")
+  const [encodedImage, setEncodedImage] = useState<string>()
+
+  //picture encoding
+
+  useEffect(()=>{console.log("encoded: ", encodedImage?.substring(0,20));
+  }, [encodedImage])
+
+  async function encode (uri:string) {
+    const base64Image = await FileSystem.readAsStringAsync(uri, {
+                encoding: FileSystem.EncodingType.Base64,});
+   
+    setEncodedImage(base64Image)
+  }
+
+  useEffect(()=>{
+    
+    encode(picture)
+
+  }, [picture]);
+
 
   //errors from input validations
   const [errorMessage, setErrorMsg] = useState<string[]>([])
@@ -52,11 +68,16 @@ const Registration = () => {
   //screen navigation
   const [screen, setScreen] = useState(0);
 
-  //input toggles  
-  const toggleSmokingSwitch = () => setSmoking(previousState => !previousState);  
-  const toggleKidsSwitch = () => setKids(previousState => !previousState);  
-  const toggleDrinkSwitch = () => setDrink(previous => !previous)
-
+  const ScreenNav = ({ screen }: { screen: number }) => {
+    return(
+      <View style={styles.nav_container}>      
+        <View style={[styles.nav, {backgroundColor: '#161954'}]}></View>
+        <View style={screen > 0 ? [styles.nav, {backgroundColor: '#161954'}] :styles.nav}></View>
+        <View style={screen > 1 ? [styles.nav, {backgroundColor: '#161954'}] :styles.nav}></View>
+        <View style={screen > 2 ? [styles.nav, {backgroundColor: '#161954'}] :styles.nav}></View>
+      </View>
+    )
+  }
 
   //input validations
 
@@ -146,19 +167,8 @@ const Registration = () => {
     }
   };
   const validateScreen3 = () => {
-    const errors = []
-    let min = parseInt(minAge)
-    let max = parseInt(maxAge)
-
-    if(!["Male","Female","Other"].includes(lookingFor)){
-      errors.push("Need to select what you're looking for")
-    }
-    if( isNaN(min) || min < 18 ){
-      errors.push("we need a valid min age")
-    }
-    if(isNaN(max) || max > 100){
-      errors.push("we need a valid max age")
-    }
+    const errors:any = []
+  
     return errors
 
   };
@@ -194,15 +204,10 @@ const Registration = () => {
       yearOfBirth,
       aboutMe,
       gender,
-      lookingFor,
-      smoking,
-      drink,
-      kids,
-      minAge,
-      maxAge,
       sun,
       moon,
-      asc
+      asc,
+      encodedImage
     }
 
     try {
@@ -234,6 +239,8 @@ const Registration = () => {
      style={styles.background_image}
      resizeMode="cover"
     > 
+    
+
       {errorMessage.length > 0 && (
         errorMessage.map(error => <Text key={error}>{error}</Text>)
       )}
@@ -241,11 +248,13 @@ const Registration = () => {
 
       {error && <Text style={styles.errorText}>Authentication error</Text>}
       {isLoading && <Text style={styles.loadingText}>Loading...</Text>}
-     
+      
+      <ScreenNav screen={screen}/>
 
       {screen === 0 && (
         <KeyboardAvoidingView>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
+
         <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Name</Text>
@@ -322,8 +331,7 @@ const Registration = () => {
       {screen === 2 && (
         <KeyboardAvoidingView>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.formContainer}>
-          <Text style={styles.formTitle}>Taste</Text>
+       
          
           <Selector itemName="movie" items={movies} setSelection={setMovies} onSearch={fetchMovies} />
           <Selector itemName="book" items={books} setSelection={setBooks} onSearch={fetchBooks} />          
@@ -332,75 +340,21 @@ const Registration = () => {
           <TouchableOpacity style={styles.button} onPress={onSubmitScreen2}>
             <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
-        </View>
+        
         </ScrollView>
         </KeyboardAvoidingView>
       )}
 
       {screen === 3 && (
         <>
-        <Text style={styles.formTitle}>Deal Brakers</Text>
+
         <View style={styles.formContainer}>
-        <View style={styles.dealbraker}>
-          <Text>Looking for</Text>
-          <Picker
-            selectedValue={lookingFor}
-            onValueChange={(itemValue, itemIndex) =>
-               setLookingFor(itemValue)
-            }
-            style={styles.picker}
-            itemStyle={styles.picker_item}
-            mode='dropdown'
-          >
-            <Picker.Item label="Male" value="Male" />
-            <Picker.Item label="Female" value="Female" />
-            <Picker.Item label="Other" value="Other" />
-          </Picker>
-          <Text>{lookingFor}</Text>
-
-        </View>
-        <View style={styles.dealbraker}>
-         <Text>Smoking</Text> 
-         <Switch
-          trackColor={{false: 'black', true: 'white'}}
-          thumbColor={smoking ? 'green' : 'red'}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleSmokingSwitch}
-          value={smoking}
-        />
-         <Text>{smoking ? 'No problem': 'No way'}</Text>
-        </View>
-        <View style={styles.dealbraker}>
-         <Text>Children</Text> 
-         <Switch
-          trackColor={{false: 'black', true: 'white'}}
-          thumbColor={kids ? 'green' : 'red'}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleKidsSwitch}
-          value={kids}
-        />
-           <Text>{kids ? 'No problem': 'No way'}</Text>
-        </View>
-        <View style={styles.dealbraker}>
-         <Text>Alcohol</Text> 
-         <Switch
-          trackColor={{false: 'black', true: 'white'}}
-          thumbColor={drink ? 'green' : 'red'}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleDrinkSwitch}
-          value={drink}
-          />
-          <Text>{drink ? 'No problem': 'No way'}</Text>
-        </View>
-        <View style={styles.dealbraker}>
-          <Text>Age</Text>
-          <TextInput style={styles.age_input}  onChangeText={setMinAge}/>
-          <Text>TO</Text>
-          <TextInput style={styles.age_input}  onChangeText={setMaxAge} />
-
-        </View>
         
-        <TouchableOpacity style={styles.button} onPress={onSubmitScreen3}>
+        <ProfilePictureUploadScreen updateImage={setPicture}/>
+
+        {picture && <Image source={{ uri: picture }} style={styles.picture} />}
+        
+            <TouchableOpacity style={styles.button} onPress={onSubmitScreen3}>
             <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>
           </View>
@@ -414,7 +368,6 @@ const Registration = () => {
           <Text style={styles.summaryText}>Name: {user?.name}</Text>
           <Text style={styles.summaryText}>Gender: {gender}</Text>
           <Text style={styles.summaryText}>Born: {yearOfBirth}</Text>
-          <Text style={styles.summaryText}>Looking for: {lookingFor}</Text>
           <Text style={styles.summaryText}>Location: {user?.city}</Text>
           <Text style={styles.summaryText}>Sun: {sun}</Text>
           <Text style={styles.summaryText}>Moon: {moon}</Text>
@@ -428,8 +381,6 @@ const Registration = () => {
         </View>
         </ScrollView>
       )}
-    
-    
     
     </ImageBackground> 
     </>
@@ -448,7 +399,7 @@ const styles = StyleSheet.create({
   inputLabel: { fontWeight: 'bold', marginBottom: 5 },
   input: { backgroundColor: '#A7A3CA', padding: 10, borderRadius: 5 },
   textarea: { height: 100, textAlignVertical: 'top' },
-  button: { marginTop: 20, backgroundColor: '#161954', padding: 15, borderRadius: 10, alignItems: 'center' },
+  button: { marginTop: 20, backgroundColor: '#161954', padding: 15, borderRadius: 10, alignItems: 'center', alignSelf:'center' },
   buttonText: { color: '#FFF', fontWeight: 'bold' },
   radioGroup: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
   radioButton: { padding: 10 },
@@ -466,7 +417,11 @@ const styles = StyleSheet.create({
   background_image:{width:'100%', height:'100%', },
   age_input:{ width:'20%', backgroundColor: '#A7A3CA', height:50},
   summaryTitle:{fontSize:40, textAlign:'center',margin:'5%'},
-  summaryText:{margin:10, padding:10, backgroundColor:'#A7A3CA', borderRadius:5}
+  summaryText:{margin:10, padding:10, backgroundColor:'#A7A3CA', borderRadius:5},
+  nav_container:{padding: 20, display:'flex', flexDirection:'row', gap:'60', marginBlockStart:20, alignSelf:'center'},
+  nav:{height:8, flex:1, backgroundColor:'#A7A3CA', borderRadius:4},
+  picture:{width: 200, height: 200, borderRadius: 100, alignSelf: 'center', marginTop: 20,}
+  
 });
 
 export default Registration;

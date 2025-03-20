@@ -1,45 +1,48 @@
-import { StyleSheet, Text, View, ImageBackground, Pressable, Button } from 'react-native'
+import { StyleSheet, Text, View, ImageBackground, Pressable } from 'react-native'
 import { Link } from 'expo-router'
 import React from 'react'
 import ImageCarousel from './components/carousel'
 import LoginButton from './components/loginButton';
 const image = require('../assets/images/background.png')
 
-  const App = () => {
+const App = () => {
 
     return(
       
-        <View style={styles.container}>
-           <ImageBackground
+      <View style={styles.container}>
+        <ImageBackground
           source={image}
           style={styles.background_image}
           resizeMode="cover"
-          >
-            <View style={styles.container}>
+        >
+          <View style={styles.container}>
         
-           <ImageCarousel />
-           <View style={styles.title_group}>
-              <Text style={styles.title}>MoonLo</Text>
-              <Text style={styles.title_text}>{`we’re like tinder, but more mystical. find your soulmate according to the stars, because the moon matters.`.toUpperCase()}</Text>
-           </View>
-            <View style={styles.login_group}>
-                <Link href="/registration" asChild>
-                    <Pressable style={styles.start}>
-                      <Text style={styles.start_text}>CREATE PROFILE</Text>
-                    </Pressable>
-                  </Link>
-                  <Text>{`already have an account?`.toLocaleUpperCase()}</Text>
-                  <LoginButton />
-            </View>
-            </View>
-            </ImageBackground>
+              <ImageCarousel />
 
-        </View>
+              <View style={styles.title_group}>
+                  <Text style={styles.title}>MoonLo</Text>
+                  <Text style={styles.title_text}>{`we’re like tinder, but more mystical. find your soulmate according to the stars, because the moon matters.`.toUpperCase()}</Text>
+              </View>
+              
+                <View style={styles.login_group}>
+                    <Link href="/registration" asChild>
+                        <Pressable style={styles.start}>
+                          <Text style={styles.start_text}>CREATE PROFILE</Text>
+                        </Pressable>
+                      </Link>
+                      <Text>{`already have an account?`.toLocaleUpperCase()}</Text>
+                      <LoginButton />
+                </View>
+
+          </View>
+        </ImageBackground>
+
+      </View>
         
     )
 
-  }
-  const styles = StyleSheet.create({
+}
+const styles = StyleSheet.create({
     container: {
       height:'100%',
       backgroundColor: '#CEC4D810',
@@ -90,6 +93,6 @@ const image = require('../assets/images/background.png')
     },
     background_image:{width:'100%', height:'100%', }
     
-  })
-  export default App
+})
+export default App
   

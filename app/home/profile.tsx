@@ -15,15 +15,12 @@ interface User {
   yearOfBirth:string
   aboutMe:string
   gender:string
-  lookingFor:string
-  smoking:boolean
-  drink:boolean
-  kids:boolean
   minAge:string
   maxAge:string
   sun:string
   moon:string
   asc:string
+  picture_url:string
 }
 
 const profile = () => {
@@ -40,15 +37,12 @@ const profile = () => {
     yearOfBirth: "",
     aboutMe: "",
     gender: "",
-    lookingFor: "",
-    smoking: false,
-    drink: false,
-    kids: false,
     minAge: "",
     maxAge: "",
     sun: "",
     moon: "",
-    asc: ""
+    asc: "",
+    picture_url:""
 });
 
   
@@ -104,7 +98,7 @@ const profile = () => {
           <View style={styles.picture_group}>
               {user &&  (
               <View style={styles.profile_pic_container}>
-                <Image source={{uri: user.picture}} style={styles.profile_pic} />
+                <Image source={{uri: profile.picture_url}} style={styles.profile_pic} />
               </View>
               )}
               {profile && <Text style={styles.profile_name}>{profile.name.split(" ")[0]}</Text>}
