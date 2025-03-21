@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 interface SelectorProps {
   itemName: string;
   onSearch: (query: string) => Promise<any>;
-  setSelection: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelection: (selection:string[])=>void;
   items: string[]
 }
 

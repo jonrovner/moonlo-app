@@ -1,19 +1,18 @@
-import { ScrollView, KeyboardAvoidingView, Switch, StyleSheet, Text, View, TextInput, Button, TouchableOpacity, ImageBackground, Image } from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
-import Selector from './components/selector';
-import { fetchMovies, fetchBooks, fetchMusic } from './utils.js';
+import { ScrollView, StyleSheet, Text, View,  Button, ImageBackground  } from 'react-native';
+import React, { useState, useEffect  } from 'react';
 import { useAuth0 } from 'react-native-auth0';
 import { router } from 'expo-router';
 import ProfilePictureUploadScreen from './components/pickImage'
+import Details from './registration/details';
+import Signs from './registration/signs';
+import Preferences from './registration/preferences';
 import * as FileSystem from 'expo-file-system';
 
 const Registration = () => {
  
   //auth0
   const { authorize, user, error, getCredentials, isLoading } = useAuth0();
-  console.log("user: ", user);
-  
-  
+  //console.log("user: ", user);
   async function checkSession() {
     if (!user){
       try {
@@ -24,41 +23,32 @@ const Registration = () => {
       }
     }
   }
-
   useEffect(()=>{
     checkSession()
   }, [])
-
 
   //non-auth0 profile attributes
   const [movies, setMovies] = useState<string[]>([]);
   const [books, setBooks] = useState<string[]>([]);
   const [music, setMusic] = useState<string[]>([]);
   const [yearOfBirth, setYearOfBirth] = useState('');
-  const [aboutMe, setAboutMe] = useState('');
-  const [gender, setGender] = useState('');
+  const [aboutMe, setAboutMe] = useState("");
+  const [gender, setGender] = useState("");
   const [sun, setSun] = useState("")
   const [moon, setMoon] = useState("")
   const [asc, setAsc] = useState("")
   const [picture, setPicture] = useState<string>("")
   const [encodedImage, setEncodedImage] = useState<string>()
 
-  //picture encoding
-
-  useEffect(()=>{console.log("encoded: ", encodedImage?.substring(0,20));
-  }, [encodedImage])
+  //picture encodingdf
 
   async function encode (uri:string) {
     const base64Image = await FileSystem.readAsStringAsync(uri, {
                 encoding: FileSystem.EncodingType.Base64,});
-   
     setEncodedImage(base64Image)
   }
-
-  useEffect(()=>{
-    
+  useEffect(()=>{ 
     encode(picture)
-
   }, [picture]);
 
 
@@ -168,6 +158,9 @@ const Registration = () => {
   };
   const validateScreen3 = () => {
     const errors:any = []
+    if (!encodedImage){
+      errors.push("we need a profile pic")
+    }
   
     return errors
 
@@ -177,15 +170,11 @@ const Registration = () => {
     const errors = validateScreen3()
     
     if (errors.length === 0){
-      setScreen(4)
+      onSubmit()
     }
     else{
-
-      console.log("errors in screen 3", errors);
-      
+      console.log("errors in screen 3", errors);      
     }
-    
-
   };
 
   //submit profile
@@ -211,7 +200,7 @@ const Registration = () => {
     }
 
     try {
-      fetch('http://192.168.0.3:3001/api/users', {
+      fetch('http://192.168.0.76:3001/api/users', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -252,113 +241,49 @@ const Registration = () => {
       <ScreenNav screen={screen}/>
 
       {screen === 0 && (
-        <KeyboardAvoidingView>
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
-
-        <View style={styles.formContainer}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Name</Text>
-            <TextInput style={styles.input} value={user?.name} editable={false} />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>City</Text>
-            <TextInput style={styles.input} value={user?.city} editable={false} />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Year of Birth</Text>
-            <TextInput style={styles.input} placeholder="Enter your year of birth" value={yearOfBirth} onChangeText={setYearOfBirth} keyboardType="numeric" />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Gender</Text>
-            <View style={styles.radioGroup}>
-              <TouchableOpacity style={styles.radioButton} onPress={() => setGender('Male')}>
-                <Text style={gender === 'Male' ? styles.radioSelected : styles.radioText}>Male</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.radioButton} onPress={() => setGender('Female')}>
-                <Text style={gender === 'Female' ? styles.radioSelected : styles.radioText}>Female</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.radioButton} onPress={() => setGender('Other')}>
-                <Text style={gender === 'Other' ? styles.radioSelected : styles.radioText}>Other</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>About Me</Text>
-            <TextInput style={[styles.input, styles.textarea]} placeholder="Write a short description about yourself" value={aboutMe} onChangeText={setAboutMe} multiline />
-          </View>
-
-          <TouchableOpacity style={styles.button} onPress={onSubmitScreen0}>
-            <Text style={styles.buttonText}>Next</Text>
-          </TouchableOpacity>
-        </View>
-        </ScrollView>
-        </KeyboardAvoidingView>
+        <Details 
+        user={user}
+        gender={gender}
+        yearOfBirth={yearOfBirth}
+        aboutMe={aboutMe}
+        setAboutMe={setAboutMe}
+        setGender={setGender}
+        setYearOfBirth={setYearOfBirth}
+        onSubmit={onSubmitScreen0}
+        
+        />
         
       )}
 
       {screen === 1 && (
-        <KeyboardAvoidingView>
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
-         <View style={styles.formContainer}>
-            <View style={styles.inputGroup}>
-              <Image source={require('../assets/images/moon3d.png')} style={styles.input_image} />
-              <Text style={styles.inputLabel}>Moon</Text>
-              <TextInput style={styles.input} onChangeText={setMoon} />
-            </View>
-            <View style={styles.inputGroup}>
-              <Image source={require('../assets/images/sun3d.png')} style={styles.input_image} />
-              <Text style={styles.inputLabel}>Sun</Text>
-              <TextInput style={styles.input}  onChangeText={setSun}/>
-            </View>
-            <View style={styles.inputGroup}>
-              <Image source={require('../assets/images/asc3d.png')} style={styles.asc_image} />
-              <Text style={styles.inputLabel}>Ascendant</Text>
-              <TextInput style={styles.input} onChangeText={setAsc} />
-            </View>
-            <TouchableOpacity style={styles.button} onPress={onSubmitScreen1}>
-            <Text style={styles.buttonText}>Next</Text>
-            </TouchableOpacity>
-
-          </View>
-          </ScrollView>
-          </KeyboardAvoidingView>
+       <Signs 
+       moon={moon}
+       sun={sun}
+       asc={asc}
+       setMoon={setMoon}
+       setSun={setSun}
+       setAsc={setAsc}
+       onSubmit={onSubmitScreen1}
+       />
       )}
 
       {screen === 2 && (
-        <KeyboardAvoidingView>
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
-       
-         
-          <Selector itemName="movie" items={movies} setSelection={setMovies} onSearch={fetchMovies} />
-          <Selector itemName="book" items={books} setSelection={setBooks} onSearch={fetchBooks} />          
-          <Selector itemName="music" items={music} setSelection={setMusic} onSearch={fetchMusic} />
-          
-          <TouchableOpacity style={styles.button} onPress={onSubmitScreen2}>
-            <Text style={styles.buttonText}>Next</Text>
-          </TouchableOpacity>
-        
-        </ScrollView>
-        </KeyboardAvoidingView>
+       <Preferences 
+       movies={movies}
+       books={books}
+       music={music}
+       setMovies={setMovies}
+       setBooks={setBooks}
+       setMusic={setMusic}
+       onSubmit={onSubmitScreen2}
+       />
       )}
 
       {screen === 3 && (
-        <>
-
-        <View style={styles.formContainer}>
         
-        <ProfilePictureUploadScreen updateImage={setPicture}/>
-
-        {picture && <Image source={{ uri: picture }} style={styles.picture} />}
-        
-            <TouchableOpacity style={styles.button} onPress={onSubmitScreen3}>
-            <Text style={styles.buttonText}>Next</Text>
-          </TouchableOpacity>
-          </View>
-        </>
+      <ProfilePictureUploadScreen 
+       updateImage={setEncodedImage} 
+       onSubmit={onSubmitScreen3}/>
       )}
 
       {screen === 4 && (
@@ -387,19 +312,19 @@ const Registration = () => {
       
     
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: { backgroundColor: 'black', },
-  scrollContainer:{flexGrow:1},
+  scrollContainer:{flexGrow:1, display:'flex'},
   scrollViewContainer: { padding: 20, alignItems: 'center' },
-  formContainer: { padding:20, width: '100%' },
+  formContainer: { padding:20, width: '100%', display:'flex', justifyContent:'space-between'},
   formTitle:{marginBlockStart:20,alignSelf:'center', textAlign:'center', fontWeight:'bold', marginBottom:15},
   inputGroup: { marginBottom: 15 },
   inputLabel: { fontWeight: 'bold', marginBottom: 5 },
   input: { backgroundColor: '#A7A3CA', padding: 10, borderRadius: 5 },
   textarea: { height: 100, textAlignVertical: 'top' },
-  button: { marginTop: 20, backgroundColor: '#161954', padding: 15, borderRadius: 10, alignItems: 'center', alignSelf:'center' },
+  button: { margin: 20, backgroundColor: '#161954', padding: 15, borderRadius: 10, alignItems: 'center'},
   buttonText: { color: '#FFF', fontWeight: 'bold' },
   radioGroup: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 15 },
   radioButton: { padding: 10 },

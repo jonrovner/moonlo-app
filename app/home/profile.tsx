@@ -52,17 +52,14 @@ const profile = () => {
   async function fetchProfile(user:any){
     let id = encodeURIComponent(user.sub)
     try{
-    const response = await fetch('http://192.168.0.3:3001/api/users/'+id)
+    const response = await fetch('http://192.168.0.76:3001/api/users/'+id)
     const json = await response.json()
       //console.log("I GOT PROFILE", json);
-      
     setProfile(json)
 
     } catch (e){
       console.log("ERROR FROM API", e);
-      
     }
-    
   }
   
   async function checkSession() {
@@ -70,9 +67,7 @@ const profile = () => {
       try {
         await authorize();
         await getCredentials();
-       console.log("user", user);
-       
-
+       //console.log("user", user);
       } catch (e) {
         console.log('Authentication error:', e);
       }
@@ -104,7 +99,13 @@ const profile = () => {
               {profile && <Text style={styles.profile_name}>{profile.name.split(" ")[0]}</Text>}
           </View>
           <View style={styles.match_me_container}>
-            <Text style={styles.match_me}>MATCH ME</Text>
+            <ImageBackground
+            source={require('../../assets/images/heart-baloon.png')}
+            style={styles.background_image}
+            resizeMode="cover"
+            >
+            
+            </ImageBackground>
           </View>
         </View>
         <View style={styles.signs_grid}>
@@ -129,7 +130,7 @@ const profile = () => {
             <View style={styles.profile_sign}>
               <Image source={require('../../assets/images/asc3d.png')} style={styles.asc_image} />
               <View style={styles.sign_text_group}>
-                <Text style={styles.sign_title}>Capricorn</Text>
+                <Text style={styles.sign_title}>{profile.asc}</Text>
                 <Text style={styles.sign_text}>asc</Text>
               </View>
 
@@ -137,6 +138,59 @@ const profile = () => {
             </View>
           </View>
         </View>
+      
+        <Text style={styles.section_title}>Bio</Text>
+        <View style={styles.profile_bio}>
+
+              <Text>{profile.aboutMe}</Text>   
+
+        </View>
+        <Text style={styles.section_title}>Preferences</Text>
+        <View style={styles.profile_bio}>
+          
+          <View style={styles.preference_title_container}>
+
+            <Image style={styles.preference_image} source={require('../../assets/images/movies-icon.png')} />
+            <Text style={styles.preference_title}>movies</Text>
+
+          </View>
+          {
+            profile.movies.length>0 && profile.movies.map(movie => (
+              <Text style={styles.preference_text} key={movie}>• {movie}</Text>                
+            ))
+          } 
+          </View>   
+           <View style={styles.profile_bio}>
+
+          <View style={styles.preference_title_container}>
+
+            <Image style={styles.preference_image} source={require('../../assets/images/books-icon.png')} />
+            <Text style={styles.preference_title}>books</Text>
+
+          </View>
+          {
+            profile.books.length>0 && profile.books.map(book => (
+              <Text style={styles.preference_text} key={book}>• {book}</Text>                
+            ))
+
+          
+          }
+          </View>
+
+          <View style={styles.profile_bio}>
+          <View style={styles.preference_title_container}>
+
+            <Image style={styles.preference_image} source={require('../../assets/images/music-icon.png')} />
+            <Text style={styles.preference_title}>music</Text>
+
+          </View>
+          {
+            profile.music.length>0 && profile.music.map(music => (
+              <Text style={styles.preference_text} key={music}>• {music}</Text>                
+            ))
+          } 
+          </View>   
+        
       </View>
       <Logout />
     </ScrollView>
@@ -155,7 +209,7 @@ const styles = StyleSheet.create({
   profile_pic_container:{overflow:'hidden', width:80, height:80, borderRadius:40},
   profile_pic:{width:80, height:80, resizeMode:'cover'},
   profileHead:{display:'flex', flexDirection:'row',gap:20, alignItems:'center', justifyContent:'space-between'},
-  match_me_container:{width:100, height:100, backgroundColor:'#9B9ED8', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:50, marginRight:20},
+  match_me_container:{width:120, height:120, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:50, marginRight:20},
   match_me:{fontWeight:'bold'},
   profile_name:{fontWeight:'bold', fontSize:20},
   signs_grid:{},
@@ -167,7 +221,13 @@ const styles = StyleSheet.create({
   moon_title:{fontSize:30, fontWeight:'bold'},
   sign_title:{fontSize:24, fontWeight:'bold'},
   sign_text:{fontSize:18, color:'#8184BE'},
-  asc_image:{width:75, height:35, marginTop:15}
+  asc_image:{width:75, height:35, marginTop:15},
+  profile_bio:{marginBlockStart:20, padding:25, backgroundColor:'#9B9ED850', borderRadius:20},
+  section_title:{marginBlockStart:20, fontWeight:'bold'},
+  preference_title_container:{display:'flex', flexDirection:'row', gap:10, alignItems:'center'},
+  preference_image:{width:'10%', height:'90%'},
+  preference_title:{fontWeight:'bold'},
+  preference_text:{marginBlockStart:10, marginTop:5}
   
 
 })
