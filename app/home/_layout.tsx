@@ -1,9 +1,10 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-type IoniconsName = keyof typeof Ionicons.glyphMap; 
+type IoniconsName = keyof typeof Ionicons.glyphMap;
 
 export default function HomeLayout() {
+
     return (
       <Tabs
         screenOptions={({ route }) => ({
@@ -21,6 +22,16 @@ export default function HomeLayout() {
           tabBarInactiveTintColor: 'gray',
           headerShown: false, 
         })}
+      >
+        <Tabs.Screen
+        name="[user]"
+        options={{
+          href: null,
+          tabBarShowLabel:false
+         
+        }}
       />
+      </Tabs>
+      
     );
   }

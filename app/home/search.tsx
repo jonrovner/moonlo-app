@@ -1,6 +1,8 @@
-import { ImageBackground, StyleSheet, Text, View, Image } from 'react-native'
+import { ImageBackground, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useAuth0 } from 'react-native-auth0'
+import ListedProfile from '../components/listedProfile'
+import Waiting from '../components/waiting'
 
 
 interface User {
@@ -22,6 +24,9 @@ interface User {
 }
 
 const Search = () => {
+
+  const [waiting, setWaiting] = useState<boolean>(true)
+
   const [profile, setProfile] = useState<User>({
     auth0_id: "",
     name: "",
@@ -39,6 +44,7 @@ const Search = () => {
     asc: "",
     picture_url:""
   })
+
   const { authorize, user, error, getCredentials, isLoading } = useAuth0();
   useEffect
   console.log("user", user);
@@ -85,11 +91,15 @@ const Search = () => {
 
   const [users, setUsers] = useState<User[]>([])
 
+  
+
   const fetchUsers = async (moon:string) => {
     try {
       const response = await fetch('http://192.168.0.76:3001/api/users/moon/'+moon)
       const json: User[] = await response.json()
       setUsers(json)
+      setWaiting(false)
+      
     } catch (error) {
       console.error('Error fetching users:', error)
     }
@@ -111,54 +121,30 @@ const Search = () => {
      style={styles.background_image}
      resizeMode="cover"
     >
+      {waiting && <Waiting />}
+
     <View style={styles.title_bar}>
       <Image 
         source={require('../../assets/images/heart-baloon.png')}
         style={styles.title_image}
       />
       <Text style={styles.title_text}>MOON MATCHES</Text>
-      <Image
+      <Image style={styles.filter_icon}
         source={require('../../assets/images/filters-icon.png')}
       />
     </View>
 
     {users.length > 0 && users.map(user => (
-      <View key={user.auth0_id} style={styles.user_profile_container}>
-        <View style={styles.picture_group}>
-          <Image source={{uri: user.picture_url}}  style={styles.profile_pic}/>
-
-          <View style={styles.details_container}>
-              <Text style={styles.picture_title}>{user.name.split(" ")[0]}</Text>
-              <Text>{user.city}</Text>
-              <View style={styles.signs_container}>
-                <View style={styles.sign}>
-                  <Image 
-                  source={require('../../assets/images/sun3d.png')}
-                  style={styles.sign_image}
-                  />
-                  <Text>{user.sun}</Text>
-                  
-                </View>
-                <View style={styles.sign}>
-                  
-                <Image 
-                  source={require('../../assets/images/asc3d.png')}
-                  style={styles.sign_image}
-                  />
-                  <Text>{user.asc}</Text>
-               
-               
-                </View>
-
-
-              </View>
-          
-          
-          </View>
-
-
-        </View>
-       </View> 
+      <ListedProfile key={user.auth0_id} user={{
+        auth0_id:user.auth0_id,
+        picture_url:user.picture_url,
+        name:user.name,
+        city:user.city,
+        sun:user.sun,
+        asc:user.asc
+      
+      }} />
+     
       ))}
 
     </ImageBackground>
@@ -173,12 +159,6 @@ const styles = StyleSheet.create({
   title_bar:{backgroundColor:'#BBBDDE50', height:100, display:'flex', flexDirection:'row', padding:10, justifyContent:'space-between', alignItems:'center'},
   title_image:{height:70, width:70},
   title_text:{fontSize:24},
-  user_profile_container:{backgroundColor:'#BBBDDE50', margin:10, padding:10, borderRadius:10},
-  profile_pic:{flex:1, borderRadius:20},
-  picture_group:{display:'flex', flexDirection:'row', padding:2, gap:15, justifyContent:'center'},
-  details_container:{flex:1, display:'flex', gap:20, justifyContent:'flex-start', alignItems:'center'},
-  picture_title:{fontSize:24, fontWeight:'bold'},
-  signs_container:{display:'flex', flexDirection:'row', gap:10},
-  sign:{flex:1, backgroundColor:'#8184BE40', display:'flex', padding:10, justifyContent:'center', borderRadius:15},
-  sign_image:{width:30, height:30}
+  filter_icon:{marginBlockEnd:10}
+  
 })

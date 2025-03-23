@@ -2,6 +2,7 @@ import { StyleSheet, Image, Text, View, ImageBackground, ScrollView} from 'react
 import React, {useState, useEffect}from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import Logout from '../components/logout'
+import Waiting from '../components/waiting'
 
 interface User {
   auth0_id:string
@@ -24,6 +25,8 @@ interface User {
 }
 
 const profile = () => {
+
+  const [waiting, setWaiting] = useState<boolean>(true)
 
   const [profile, setProfile] = useState<User>({
     auth0_id: "",
@@ -56,6 +59,7 @@ const profile = () => {
     const json = await response.json()
       //console.log("I GOT PROFILE", json);
     setProfile(json)
+    setWaiting(false)
 
     } catch (e){
       console.log("ERROR FROM API", e);
@@ -87,7 +91,7 @@ const profile = () => {
            resizeMode="cover"
           > 
      <ScrollView style={styles.scroll}>
-      
+     {waiting && <Waiting />}
       <View style={styles.container}>
         <View style={styles.profileHead}>
           <View style={styles.picture_group}>
