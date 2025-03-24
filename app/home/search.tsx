@@ -46,8 +46,6 @@ const Search = () => {
   })
 
   const { authorize, user, error, getCredentials, isLoading } = useAuth0();
-  useEffect
-  console.log("user", user);
 
   async function fetchProfile(user:any){
 
@@ -135,15 +133,25 @@ const Search = () => {
     </View>
 
     {users.length > 0 && users.map(user => (
-      <ListedProfile key={user.auth0_id} user={{
+      <ListedProfile 
+      key={user.auth0_id} 
+      user={{
         auth0_id:user.auth0_id,
         picture_url:user.picture_url,
         name:user.name,
         city:user.city,
         sun:user.sun,
-        asc:user.asc
-      
-      }} />
+        asc:user.asc,
+        email:user.email
+      }}
+      me={{
+        auth0_id:profile.auth0_id,
+        picture_url:profile.picture_url,
+        name:profile.name,
+        email:profile.email
+      }
+
+      } />
      
       ))}
 

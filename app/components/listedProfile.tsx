@@ -9,14 +9,32 @@ interface Props {
         name:string,
         city:string,
         sun:string,
-        asc:string
+        asc:string,
+        email:string
+    },
+    me:{
+      auth0_id:string,
+      picture_url:string,
+      name:string,
+      email:string
+
     }
+
 }
 
-const ListedProfile: React.FC<Props>  = ({user}) => {
+const ListedProfile: React.FC<Props>  = ({user, me}) => {
 
   const onProfileView = (id:string) => {
     router.navigate(`/home/${id}`)
+  }
+
+  const onRequestMessage = () => {
+    console.log("user", user);
+    
+    router.navigate(`/chat?myId=${me.auth0_id}&myName=${me.name}&myPic=${me.picture_url}&myEmail=${me.email}&otherId=${user.auth0_id}&otherName=${user.name}&otherPic=${user.picture_url}&otherEmail=${user.email}`)
+
+
+
   }
 
   return (
@@ -65,7 +83,7 @@ const ListedProfile: React.FC<Props>  = ({user}) => {
            
            
               </View>
-              <TouchableOpacity style={styles.request_message_button} >
+              <TouchableOpacity onPress={onRequestMessage} style={styles.request_message_button} >
             <Text style={styles.request_message_text}>REQUEST MESSAGGE</Text>
     
               </TouchableOpacity>

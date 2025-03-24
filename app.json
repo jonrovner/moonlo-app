@@ -51,6 +51,16 @@
           "domain": "dev-jrovner.us.auth0.com"
         }
       ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": [
+              "../../node_modules/@notifee/react-native/android/libs"
+            ]
+          }
+        }
+      ],
       "expo-font"
     ],
     "extra": {
