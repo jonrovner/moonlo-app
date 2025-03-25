@@ -24,8 +24,8 @@ export default function RootLayout() {
  }
 
   return <Auth0Provider 
-   domain="dev-jrovner.us.auth0.com"
-   clientId="DG1DGX6d8luYCJ4etHqNFLhuDmoZcuxM">
+   domain="moonlo.us.auth0.com"
+   clientId="GcvUidg12Ix9t553pFYlcDKPM7EVYQp3">
       <Stack
       screenOptions={{
         headerShown: false,

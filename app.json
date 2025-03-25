@@ -48,7 +48,7 @@
       [
         "react-native-auth0",
         {
-          "domain": "dev-jrovner.us.auth0.com"
+          "domain": "moonlo.us.auth0.com"
         }
       ],
       [

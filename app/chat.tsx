@@ -30,7 +30,7 @@ const Chat = () => {
         const me = {
             id: myId,
             name: myName,
-            email: "jonrovner@gmail.com",
+            email: myEmail,
             photoUrl: myPic,
             welcomeMessage: 'Hey there!',
           };
@@ -38,7 +38,7 @@ const Chat = () => {
           const other = {
             id: otherId,
             name: otherName,
-            email: "someDude@thismail.com",
+            email: otherEmail,
             photoUrl: otherPic,
             welcomeMessage: 'Hi there',
           };

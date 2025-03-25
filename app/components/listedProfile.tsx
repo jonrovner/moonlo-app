@@ -1,5 +1,5 @@
-import { TouchableOpacity, Image, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { TouchableOpacity, Image, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router';
 
 interface Props {
@@ -29,12 +29,19 @@ const ListedProfile: React.FC<Props>  = ({user, me}) => {
   }
 
   const onRequestMessage = () => {
-    console.log("user", user);
-    
-    router.navigate(`/chat?myId=${me.auth0_id}&myName=${me.name}&myPic=${me.picture_url}&myEmail=${me.email}&otherId=${user.auth0_id}&otherName=${user.name}&otherPic=${user.picture_url}&otherEmail=${user.email}`)
 
+    const query = new URLSearchParams({
+      myId:me.auth0_id,
+      myName:me.name,
+      myPic: me.picture_url,
+      myEmai: me.email,
+      otherId: user.auth0_id,
+      otherName: user.name,
+      otherPic: user.picture_url,
+      otherEmail:user.email
+    })
 
-
+    router.navigate(`/chat?${query.toString()}`)
   }
 
   return (
