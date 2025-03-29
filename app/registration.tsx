@@ -6,26 +6,59 @@ import ProfilePictureUploadScreen from './components/pickImage'
 import Details from './registration/details';
 import Signs from './registration/signs';
 import Preferences from './registration/preferences';
+import Waiting from './components/waiting';
 import * as FileSystem from 'expo-file-system';
 
 const Registration = () => {
+  
+  const [waiting, setWaiting] = useState(true)
  
   //auth0
-  const { authorize, user, error, getCredentials, isLoading } = useAuth0();
-  //console.log("user: ", user);
+  const { authorize, user, error, getCredentials, isLoading, clearSession } = useAuth0();
+  
   async function checkSession() {
-    if (!user){
-      try {
-        await authorize();
-        await getCredentials();
-      } catch (e) {
-        console.log('Authentication error:', e);
-      }
+    try {
+      await clearSession(); 
+      await authorize(); 
+      await getCredentials();
+    } catch (e) {
+      console.log('Authentication error:', e);
     }
   }
+  
+  async function checkProfile(id:string){
+    let url = 'http://192.168.0.76:3001/api/users/'+ encodeURIComponent(id);
+    try {
+      const response = await fetch(url)
+      const json = await response.json()
+      if (json.auth0_id){
+        console.log("FOUND USER");
+        
+        router.navigate("/home/profile")
+      }
+
+
+  } catch (e){
+    console.log("error checking profile", e);
+    
+  }
+  }
+
   useEffect(()=>{
     checkSession()
+    
   }, [])
+
+  useEffect(()=>{
+    if (user?.sub){
+
+      checkProfile(user.sub)
+    }
+    setWaiting(false)
+    
+  }, [user])
+
+  
 
   //non-auth0 profile attributes
   const [movies, setMovies] = useState<string[]>([]);
@@ -165,7 +198,7 @@ const Registration = () => {
     return errors
 
   };
-  const onSubmitScreen3 = () =>{
+  const onSubmitScreen3 = () => {
 
     const errors = validateScreen3()
     
@@ -207,11 +240,11 @@ const Registration = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data)
-      }).then(response => { response.json().then(json => {
-
+      }).then(response => { 
+        response.json().then(json => {
         console.log("JSON", json);
 
-        router.navigate('/home/profile')
+        //router.navigate('/home/profile')
         
       })})
         
@@ -223,6 +256,8 @@ const Registration = () => {
 
   return (
   <>
+    {waiting && <Waiting />}
+
     <ImageBackground
      source={require('../assets/images/background.png')}
      style={styles.background_image}

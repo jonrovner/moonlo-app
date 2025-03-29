@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View, ImageBackground, Pressable } from 'react-native'
+import { StyleSheet, Text, View, ImageBackground, Pressable, PixelRatio } from 'react-native'
 import { Link } from 'expo-router'
 import React from 'react'
 import ImageCarousel from './components/carousel'
 import LoginButton from './components/loginButton';
 const image = require('../assets/images/background.png')
+const scaleFont = (size:number) => size * PixelRatio.getFontScale();
 
 const App = () => {
 
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
       fontFamily:'work'
     },
     title: {
-      fontSize:90,
+      fontSize:scaleFont(50),
       fontFamily:'Jaro',
       color: '#1C1A43',
       textAlign: 'center',

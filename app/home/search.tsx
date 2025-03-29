@@ -1,4 +1,4 @@
-import { ImageBackground, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
+import { ImageBackground, StyleSheet, Text, View, Image, TouchableOpacity, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import ListedProfile from '../components/listedProfile'
@@ -131,7 +131,7 @@ const Search = () => {
         source={require('../../assets/images/filters-icon.png')}
       />
     </View>
-
+    <ScrollView >
     {users.length > 0 && users.map(user => (
       <ListedProfile 
       key={user.auth0_id} 
@@ -154,7 +154,7 @@ const Search = () => {
       } />
      
       ))}
-
+      </ScrollView>
     </ImageBackground>
   )
 }

@@ -3,6 +3,7 @@ import React, {useState, useEffect}from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import Logout from '../components/logout'
 import Waiting from '../components/waiting'
+const edit = require('../../assets/images/edit.png');
 
 interface User {
   auth0_id:string
@@ -78,20 +79,41 @@ const profile = () => {
     }
   }
   
-  useEffect(()=>{
-    checkSession()
-     fetchProfile(user);
-  }, [])
-
+  useEffect(() => {
+    checkSession();
+  }, []);
+  
+  useEffect(() => {
+    if (user) {
+      fetchProfile(user);
+    } else {
+      setProfile({
+        auth0_id: "",
+        name: "",
+        email: "",
+        location: "",
+        city: "",
+        movies: [],
+        books: [],
+        music: [],
+        yearOfBirth: "",
+        aboutMe: "",
+        gender: "",
+        minAge: "",
+        maxAge: "",
+        sun: "",
+        moon: "",
+        asc: "",
+        picture_url: ""
+      });
+    }
+  }, [user]);
+  
   
   return (
-    <ImageBackground
-           source={require('../../assets/images/background.png')}
-           style={styles.background_image}
-           resizeMode="cover"
-          > 
-     <ScrollView style={styles.scroll}>
+    <> 
      {waiting && <Waiting />}
+     <ScrollView style={styles.scroll}>
       <View style={styles.container}>
         <View style={styles.profileHead}>
           <View style={styles.picture_group}>
@@ -103,6 +125,7 @@ const profile = () => {
               {profile && <Text style={styles.profile_name}>{profile.name.split(" ")[0]}</Text>}
           </View>
           <View style={styles.match_me_container}>
+            <Image source={edit} style={styles.edit_icon}/>
             <ImageBackground
             source={require('../../assets/images/heart-baloon.png')}
             style={styles.background_image}
@@ -110,8 +133,10 @@ const profile = () => {
             >
             
             </ImageBackground>
+            <Text>MATCH ME</Text>
           </View>
         </View>
+
         <View style={styles.signs_grid}>
           
           <View style={styles.profile_moon}>
@@ -137,8 +162,6 @@ const profile = () => {
                 <Text style={styles.sign_title}>{profile.asc}</Text>
                 <Text style={styles.sign_text}>asc</Text>
               </View>
-
-
             </View>
           </View>
         </View>
@@ -198,7 +221,7 @@ const profile = () => {
       </View>
       <Logout />
     </ScrollView>
-    </ImageBackground>
+    </>
   )
 }
 
@@ -206,16 +229,16 @@ export default profile
 
 const styles = StyleSheet.create({
   container:{padding:30},
-  picture_group:{width:'45%',padding:20, marginBlockStart:10, backgroundColor:'#9B9ED850', borderRadius:20, display:'flex', alignItems:'center', gap:16},
+  picture_group:{flex:1, padding:10, marginBlockStart:10, backgroundColor:'#8184BE50', borderRadius:20, display:'flex', alignItems:'center', gap:5},
   title:{fontSize: 24 },
   background_image:{width:'100%', height:'100%'},
-  scroll:{height:'100%'},
-  profile_pic_container:{overflow:'hidden', width:80, height:80, borderRadius:40},
-  profile_pic:{width:80, height:80, resizeMode:'cover'},
+  scroll:{height:'100%', backgroundColor:'#9B9ED838'},
+  profile_pic_container:{flex:1, borderRadius:20},
+  profile_pic:{ width:100, height:100, resizeMode:'cover', borderRadius:20},
   profileHead:{display:'flex', flexDirection:'row',gap:20, alignItems:'center', justifyContent:'space-between'},
   match_me_container:{width:120, height:120, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:50, marginRight:20},
   match_me:{fontWeight:'bold'},
-  profile_name:{fontWeight:'bold', fontSize:20},
+  profile_name:{fontWeight:'bold', fontSize:30, fontFamily:'jaro'},
   signs_grid:{},
   sun_flex:{display:'flex', flexDirection:'row', gap:5,justifyContent:'space-between'},
   profile_moon:{display:'flex', flexDirection:'row', padding:10, marginBlockStart:15, backgroundColor:'#9B9ED850',  borderRadius:20, gap:20, justifyContent:'center'},
@@ -231,7 +254,6 @@ const styles = StyleSheet.create({
   preference_title_container:{display:'flex', flexDirection:'row', gap:10, alignItems:'center'},
   preference_image:{width:'10%', height:'90%'},
   preference_title:{fontWeight:'bold'},
-  preference_text:{marginBlockStart:10, marginTop:5}
-  
-
+  preference_text:{marginBlockStart:10, marginTop:5},
+  edit_icon:{height:20, width:20, alignSelf:'flex-end'}
 })
