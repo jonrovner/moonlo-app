@@ -1,8 +1,9 @@
-import { StyleSheet, Image, Text, View, ImageBackground, ScrollView} from 'react-native'
+import { StyleSheet, Image, Text, View, ImageBackground, ScrollView, Pressable} from 'react-native'
 import React, {useState, useEffect}from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import Logout from '../components/logout'
 import Waiting from '../components/waiting'
+import { useRouter } from 'expo-router';
 const edit = require('../../assets/images/edit.png');
 
 interface User {
@@ -49,7 +50,7 @@ const profile = () => {
     picture_url:""
 });
 
-  
+  const router = useRouter();
   const { authorize, user, error, getCredentials, isLoading } = useAuth0();
   //console.log("user: ", user);
   
@@ -114,7 +115,7 @@ const profile = () => {
     <> 
      {waiting && <Waiting />}
      <ScrollView style={styles.scroll}>
-      <View style={styles.container}>
+    
         <View style={styles.profileHead}>
           <View style={styles.picture_group}>
               {user &&  (
@@ -126,14 +127,15 @@ const profile = () => {
           </View>
           <View style={styles.match_me_container}>
             <Image source={edit} style={styles.edit_icon}/>
-            <ImageBackground
-            source={require('../../assets/images/heart-baloon.png')}
-            style={styles.background_image}
-            resizeMode="cover"
-            >
-            
-            </ImageBackground>
-            <Text>MATCH ME</Text>
+            <Pressable onPress={()=> {router.navigate('./search')}} >
+               <ImageBackground
+                source={require('../../assets/images/heart-baloon.png')}
+                style={styles.background_image}
+                resizeMode="cover"
+               >
+                 <Text style={styles.match_me}>MATCH ME</Text>
+               </ImageBackground>
+            </Pressable>
           </View>
         </View>
 
@@ -218,7 +220,7 @@ const profile = () => {
           } 
           </View>   
         
-      </View>
+     
       <Logout />
     </ScrollView>
     </>
@@ -228,16 +230,16 @@ const profile = () => {
 export default profile
 
 const styles = StyleSheet.create({
-  container:{padding:30},
-  picture_group:{flex:1, padding:10, marginBlockStart:10, backgroundColor:'#8184BE50', borderRadius:20, display:'flex', alignItems:'center', gap:5},
+  
+  scroll:{backgroundColor:'#9B9ED838', padding:20},
+  profileHead:{marginTop:30, marginBottom:20, height:'10%', display:'flex', flexDirection:'row', gap:30, alignItems:'center', justifyContent:'space-between'},
+  picture_group:{flex:1, padding:5, backgroundColor:'#8184BE50', borderRadius:20, display:'flex', alignItems:'center'},
   title:{fontSize: 24 },
-  background_image:{width:'100%', height:'100%'},
-  scroll:{height:'100%', backgroundColor:'#9B9ED838'},
+  background_image:{flex:1, display:'flex', justifyContent:'flex-end'},
   profile_pic_container:{flex:1, borderRadius:20},
   profile_pic:{ width:100, height:100, resizeMode:'cover', borderRadius:20},
-  profileHead:{display:'flex', flexDirection:'row',gap:20, alignItems:'center', justifyContent:'space-between'},
-  match_me_container:{width:120, height:120, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:50, marginRight:20},
-  match_me:{fontWeight:'bold'},
+  match_me_container:{flex:1, display:'flex', alignItems:'center', justifyContent:'flex-start', borderRadius:50, marginRight:20, gap:10},
+  match_me:{fontWeight:'bold', alignSelf:'flex-end'},
   profile_name:{fontWeight:'bold', fontSize:30, fontFamily:'jaro'},
   signs_grid:{},
   sun_flex:{display:'flex', flexDirection:'row', gap:5,justifyContent:'space-between'},

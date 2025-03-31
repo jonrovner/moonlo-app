@@ -106,6 +106,9 @@ export default function HomeLayout() {
           }
         }}
       />
+      <Tabs.Screen
+      name="search"
+      />
     </Tabs>
       
     );
