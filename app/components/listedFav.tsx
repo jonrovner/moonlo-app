@@ -49,31 +49,24 @@ const ListedProfile: React.FC<Props>  = ({user, me}) => {
     <View key={user.auth0_id} style={styles.user_profile_container}>
             
             <View style={styles.picture_group}>
-                  <Text style={styles.picture_title}>{user.name.split(" ")[0]}</Text>
-              <Image source={{uri: user.picture_url}}  style={styles.profile_pic}/>
-    
-              <View style={styles.details_container}>
-                  
-    
-                  
-              </View>
-    
-    
+                <Text style={styles.picture_title}>{user.name.split(" ")[0]}</Text>
+                <Image source={{uri: user.picture_url}}  style={styles.profile_pic}/>
             </View>
               
-              <View style={styles.buttons_row}>
+             <View style={styles.buttons_row}>
               
                 <TouchableOpacity onPress={()=>onProfileView(user.auth0_id)} style={styles.see_profile_button}>
                   <Text style={styles.see_profile_text}>SEE PROFILE</Text>
                 </TouchableOpacity>
                 
-              </View>
-              <TouchableOpacity onPress={onRequestMessage} style={styles.request_message_button} >
-            <Text style={styles.request_message_text}>REQUEST MESSAGGE</Text>
+            </View>
+            <TouchableOpacity onPress={onRequestMessage} style={styles.request_message_button} >
+               <Text style={styles.request_message_text}>REQUEST MESSAGGE</Text>
     
-              </TouchableOpacity>
+              
+            </TouchableOpacity>
            
-           </View> 
+    </View> 
   )
 }
 
@@ -84,19 +77,19 @@ const styles = StyleSheet.create({
   title_bar:{backgroundColor:'#BBBDDE50', height:100, display:'flex', flexDirection:'row', padding:10, justifyContent:'space-between', alignItems:'center'},
   title_image:{height:70, width:70},
   title_text:{fontSize:24},
-  user_profile_container:{backgroundColor:'#BBBDDE50', margin:10, padding:10, borderRadius:10},
-  profile_pic:{flex:1, borderRadius:20},
-  picture_group:{display:'flex', flexDirection:'row', padding:2, gap:15, justifyContent:'center'},
-  details_container:{flex:1, display:'flex', gap:20, justifyContent:'flex-start', alignItems:'center'},
-  picture_title:{fontSize:24, fontWeight:'bold'},
-  signs_container:{display:'flex', flexDirection:'row', gap:10},
-  sign:{flex:1, backgroundColor:'#8184BE40', display:'flex', padding:10, justifyContent:'center', borderRadius:15},
-  sign_image:{width:30, height:30},
-  buttons_row:{marginBlockStart: 10, display:'flex', flexDirection:'row', justifyContent:'space-between', gap:20},
+  
+  user_profile_container:{display:'flex', backgroundColor:'#BAB5D870', margin:10, padding:10, borderRadius:10, gap:10},
+  
+  picture_group:{display:'flex', padding:2, gap:15, justifyContent:'center', alignItems:'center'},
+  picture_title:{ fontSize:36, fontWeight:'bold'},
+  profile_pic:{height:200, width:200, borderRadius:20},
+  
+  see_profile_button:{marginHorizontal:20, flex:1, padding:15, backgroundColor:'#161954', borderRadius:15},
   see_profile_text:{color:'white', textAlign:'center'},
-  pink_heart:{flex:1, height:50, alignSelf:'center'},
-  see_profile_button:{flex:3, padding:15, backgroundColor:'#161954', borderRadius:15},
-  request_message_button:{marginBlockStart: 10, backgroundColor:'#7679B9', borderRadius:15, padding:15},
+  
+  buttons_row:{marginBlockStart: 10, display:'flex', flexDirection:'row', justifyContent:'space-between', gap:20},
+  
+  request_message_button:{marginHorizontal:20, backgroundColor:'#7679B9', borderRadius:15, padding:15},
   request_message_text:{textAlign:'center', fontSize:18},
   filter_icon:{marginBlockEnd:10}
 })

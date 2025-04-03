@@ -1,4 +1,4 @@
-import { ImageBackground, StyleSheet, Text, View, Image } from 'react-native'
+import { ImageBackground, StyleSheet, Text, View, Image, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useProfile } from '../context/ProfileContext'
 import { useAuth0 } from 'react-native-auth0'
@@ -35,7 +35,7 @@ const Favs = () => {
       const credentials = await getCredentials()
       const results:any = await Promise.all(
         profile.favs.map(async (userId: string) => {
-          console.log("fav is ", userId)
+         
           let id = encodeURIComponent(userId)
           
           let response = await fetch(`http://192.168.0.76:3001/api/users/${id}`, {
@@ -45,7 +45,7 @@ const Favs = () => {
           })
 
           let json = await response.json()
-          console.log("json is:", json)
+        
           return json
         })
       )
@@ -61,9 +61,6 @@ const Favs = () => {
     }
   }, [profile?.favs]) // Added dependency
 
-  useEffect(() => {
-    console.log("users: ", users)
-  }, [users])
 
   return (
       <ImageBackground 
@@ -71,6 +68,7 @@ const Favs = () => {
          style={styles.background_image}
          resizeMode="cover"
         >
+        <ScrollView>
        <View style={styles.title_bar}>
          <Text style={styles.title_text}>MY</Text>
             <Image 
@@ -102,6 +100,7 @@ const Favs = () => {
 
         </View> // Assuming `user` has a `name` field
       ))}
+      </ScrollView>
     </ImageBackground>
   )
 }
@@ -110,7 +109,7 @@ export default Favs
 
 const styles = StyleSheet.create({
   background_image:{width:'100%', height:'100%', },
-  title_bar:{backgroundColor:'#BBBDDE50', height:100, display:'flex', flexDirection:'row', padding:10, justifyContent:'space-between', alignItems:'center'},
+  title_bar:{backgroundColor:'#BBBDDE50', height:100, display:'flex', flexDirection:'row', padding:10, justifyContent:'space-around', alignItems:'center'},
   title_image:{height:70, width:70},
   title_text:{fontSize:24},
 })
