@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { useAuth0 } from 'react-native-auth0'
 import ListedProfile from '../components/listedProfile'
 import Waiting from '../components/waiting'
-
+import { useLocalSearchParams } from 'expo-router';
+import { useProfile  } from '../context/ProfileContext'
 
 interface User {
   auth0_id: string
@@ -20,98 +21,42 @@ interface User {
   sun: string
   moon: string
   asc: string
-  picture_url:string
+  picture_url:string,
+  favs:string[]
 }
 
 const Search = () => {
-
+  const {getCredentials} = useAuth0()
   const [waiting, setWaiting] = useState<boolean>(true)
+  const { profile, setProfile } = useProfile();
 
-  const [profile, setProfile] = useState<User>({
-    auth0_id: "",
-    name: "",
-    email: "",
-    location: { latitude: "", longitude: "" },
-    city: "",
-    movies: [],
-    books: [],
-    music: [],
-    yearOfBirth: "",
-    aboutMe: "",
-    gender: "",
-    sun: "",
-    moon: "",
-    asc: "",
-    picture_url:""
-  })
-
-  const { authorize, user, error, getCredentials, isLoading } = useAuth0();
-
-  async function fetchProfile(user:any){
-
-      let id = encodeURIComponent(user.sub)
-      let url = 'http://192.168.0.76:3001/api/users/'+id
-      console.log("url is ", url);
-      
-      try {
-      const response = await fetch(url)
-      const json = await response.json()
-        //console.log("I GOT PROFILE", json);
-      setProfile(json)
+  console.log("PROFILE IN SEARCH", profile);
+  const favs = String(profile.favs).split(",")
   
-      } catch (e){
-        console.log("ERROR FROM API", e);
-      }
-    }
-    
-  async function checkSession() {
-      if (!user){
-        console.log("no user");
-        
-        try {
-          await authorize();
-          await getCredentials();
-         console.log("user", user);
-        } catch (e) {
-          console.log('Authentication error:', e);
-        }
-      }
-    }
-    
-  useEffect(()=>{
-      checkSession()
-      fetchProfile(user);
-    }, [])
-  
-  useEffect(()=>{console.log("profile", profile);
-    },[profile])
-
-
   const [users, setUsers] = useState<User[]>([])
-
-  
 
   const fetchUsers = async (moon:string) => {
     try {
-      const response = await fetch('http://192.168.0.76:3001/api/users/moon/'+moon)
+      const credentials = await getCredentials()
+      const response = await fetch('http://192.168.0.76:3001/api/users/moon/'+moon,{
+        headers:{
+          Authorization: 'Bearer '+credentials?.accessToken
+        }
+      })
       const json: User[] = await response.json()
       setUsers(json)
       setWaiting(false)
-      
+
     } catch (error) {
       console.error('Error fetching users:', error)
     }
   }
 
   useEffect(() => {
-
-    if (profile.moon){
-      console.log("getting users");
-      
-      fetchUsers(profile.moon)
-
+    if (profile.moon){    
+      fetchUsers(String(profile.moon))
     }
-  }, [profile])
+  }, [])
 
   return (
     <ImageBackground 
@@ -134,7 +79,8 @@ const Search = () => {
     <ScrollView >
     {users.length > 0 && users.map(user => (
       <ListedProfile 
-      key={user.auth0_id} 
+      key={user.auth0_id}
+      faved={favs.includes(user.auth0_id)} 
       user={{
         auth0_id:user.auth0_id,
         picture_url:user.picture_url,
@@ -145,10 +91,10 @@ const Search = () => {
         email:user.email
       }}
       me={{
-        auth0_id:profile.auth0_id,
-        picture_url:profile.picture_url,
-        name:profile.name,
-        email:profile.email
+        auth0_id:String(profile.auth0_id),
+        picture_url:String(profile.picture_url),
+        name:String(profile.name),
+        email:String(profile.email)
       }
 
       } />

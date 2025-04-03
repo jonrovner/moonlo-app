@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth0 } from 'react-native-auth0'
 import { useEffect, useState } from 'react';
 import { useFonts } from 'expo-font'; 
+import { ProfileProvider, useProfile } from '../context/ProfileContext';
 import * as SplashScreen from 'expo-splash-screen'; 
 
 SplashScreen.preventAutoHideAsync();
@@ -10,6 +11,14 @@ SplashScreen.preventAutoHideAsync();
 type IoniconsName = keyof typeof Ionicons.glyphMap;
 
 export default function HomeLayout() {
+  return (
+    <ProfileProvider>
+      <HomeTabs />
+    </ProfileProvider>
+  );
+}
+
+function HomeTabs() {
 
   const [loaded, error] = useFonts({
     'Jaro': require('../../assets/fonts/Jaro-Regular-VariableFont_opsz.ttf'),
@@ -27,17 +36,13 @@ export default function HomeLayout() {
    }
 
   const { authorize, user, getCredentials, isLoading } = useAuth0();
-  const [profile, setProfile] = useState({})
+  const {profile, setProfile} = useProfile();
 
   async function checkSession() {
     if (!user){
-      console.log("no user");
-        
       try {
-        await authorize();
+        await authorize({audience:"https://moonlo-api"});
         await getCredentials();
-        
-         
       } catch (e) {
         console.log('Authentication error:', e);
       }
@@ -46,9 +51,16 @@ export default function HomeLayout() {
 
   async function fetchProfile(user:any){
     let id = encodeURIComponent(user.sub)
-
+    const credentials = await getCredentials()
+    if (!credentials?.accessToken){
+      await checkSession()
+    }
     try {
-      const response = await fetch('http://192.168.0.76:3001/api/users/'+id)
+      const response = await fetch('http://192.168.0.76:3001/api/users/'+id, {
+        headers:{
+          Authorization: 'Bearer '+ credentials?.accessToken
+        }
+      })
       const json = await response.json()
       setProfile(json)
         
@@ -69,8 +81,12 @@ export default function HomeLayout() {
     }
   }, [user]);
 
+  useEffect(()=>{console.log("PROFILE IN LAYOUT", profile);
+  },[profile])
+
 
   return (
+    
     <Tabs
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
@@ -106,10 +122,20 @@ export default function HomeLayout() {
           }
         }}
       />
+
       <Tabs.Screen
-      name="search"
+         name="search"
+         options={{
+          href: {
+            pathname: '/home/search',
+            params: {
+             ...profile
+            },
+          }
+        }}
+        //initialParams={{profile}}
       />
     </Tabs>
-      
+   
     );
   }

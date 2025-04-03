@@ -3,7 +3,7 @@ import { TouchableOpacity, Image, StyleSheet, Text, View, Pressable } from 'reac
 import { router } from 'expo-router';
 
 interface Props {
-    faved:boolean
+   
     user:{
         auth0_id:string,
         picture_url:string,
@@ -21,7 +21,7 @@ interface Props {
     }
 }
 
-const ListedProfile: React.FC<Props>  = ({user, me, faved}) => {
+const ListedProfile: React.FC<Props>  = ({user, me}) => {
 
   const onProfileView = (id:string) => {
     router.navigate(`/home/${id}`)
@@ -43,59 +43,19 @@ const ListedProfile: React.FC<Props>  = ({user, me, faved}) => {
     router.navigate(`/chat?${query.toString()}`)
   }
 
-  const onAddToFavs = async () =>{
-    let myId = encodeURIComponent(me.auth0_id)
-
-    try{
-      let response = await fetch('http://192.168.0.76:3001/api/users/'+myId+"/favs", {
-        method:'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({user_id:user.auth0_id})
-      })
-      let json = await response.json()
-      console.log("json : ", json);
-      if (json.message){
-        faved = true
-      }
-    }catch(e){
-      console.log("ERROR ADDING TO FAV ", e);
-    }
-  }
+  
 
   return (
     <View key={user.auth0_id} style={styles.user_profile_container}>
+            
             <View style={styles.picture_group}>
+                  <Text style={styles.picture_title}>{user.name.split(" ")[0]}</Text>
               <Image source={{uri: user.picture_url}}  style={styles.profile_pic}/>
     
               <View style={styles.details_container}>
-                  <Text style={styles.picture_title}>{user.name.split(" ")[0]}</Text>
-                  <Text>📍 {user.city}</Text>
+                  
     
-                  <View style={styles.signs_container}>
-                    <View style={styles.sign}>
-                      <Image 
-                      source={require('../../assets/images/sun3d.png')}
-                      style={styles.sign_image}
-                      />
-                      <Text>{user.sun}</Text>
-                      
-                    </View>
-                    <View style={styles.sign}>
-                      
-                    <Image 
-                      source={require('../../assets/images/asc3d.png')}
-                      style={styles.sign_image}
-                      />
-                      <Text>{user.asc}</Text>
-                   
-      
-                    </View>
-    
-    
-                  </View>
-              
+                  
               </View>
     
     
@@ -106,19 +66,7 @@ const ListedProfile: React.FC<Props>  = ({user, me, faved}) => {
                 <TouchableOpacity onPress={()=>onProfileView(user.auth0_id)} style={styles.see_profile_button}>
                   <Text style={styles.see_profile_text}>SEE PROFILE</Text>
                 </TouchableOpacity>
-                {
-
-                  !faved && 
-                <Pressable onPress={onAddToFavs}>
-                <Image style={styles.pink_heart} source={require('../../assets/images/pink-heart.png')}/>
-                <Text>Add to Favs</Text>
-                </Pressable>
-
-                }
-                {
-                  faved &&<Image style={styles.pink_heart} source={require('../../assets/images/blueheart.png')}/>
-                }
-           
+                
               </View>
               <TouchableOpacity onPress={onRequestMessage} style={styles.request_message_button} >
             <Text style={styles.request_message_text}>REQUEST MESSAGGE</Text>

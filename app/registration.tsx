@@ -12,6 +12,7 @@ import * as FileSystem from 'expo-file-system';
 const Registration = () => {
   
   const [waiting, setWaiting] = useState(true)
+  
  
   //auth0
   const { authorize, user, error, getCredentials, isLoading, clearSession } = useAuth0();
@@ -19,7 +20,7 @@ const Registration = () => {
   async function checkSession() {
     try {
       await clearSession(); 
-      await authorize(); 
+      await authorize({audience:"https://moonlo-api"}); 
       await getCredentials();
     } catch (e) {
       console.log('Authentication error:', e);
@@ -27,9 +28,14 @@ const Registration = () => {
   }
   
   async function checkProfile(id:string){
+    let credentials = await getCredentials()
     let url = 'http://192.168.0.76:3001/api/users/'+ encodeURIComponent(id);
     try {
-      const response = await fetch(url)
+      const response = await fetch(url, {
+        headers:{
+          Authorization: 'Bearer ' + credentials?.accessToken
+        }
+      })
       const json = await response.json()
       if (json.auth0_id){
         console.log("FOUND USER");
@@ -46,12 +52,10 @@ const Registration = () => {
 
   useEffect(()=>{
     checkSession()
-    
   }, [])
 
   useEffect(()=>{
     if (user?.sub){
-
       checkProfile(user.sub)
     }
     setWaiting(false)
@@ -231,20 +235,24 @@ const Registration = () => {
       asc,
       encodedImage
     }
-
+      console.log("DATA: ", data.encodedImage?.substring(0,20))
     try {
+      let credentials = await getCredentials()
+
       fetch('http://192.168.0.76:3001/api/users', {
         method: 'POST',
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          "Authorization": 'Bearer '+ credentials?.accessToken
         },
         body: JSON.stringify(data)
       }).then(response => { 
         response.json().then(json => {
         console.log("JSON", json);
+         if (json.new_user){
 
-        //router.navigate('/home/profile')
+           router.navigate('/home/profile')
+         } 
         
       })})
         

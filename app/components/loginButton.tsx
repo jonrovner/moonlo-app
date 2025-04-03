@@ -9,7 +9,7 @@ const LoginButton = () => {
 
  const onPress = async () => {
         try {
-            await authorize();
+            await authorize({audience:"https://moonlo-api"});
             router.navigate('/home/profile')
         } catch (e) {
             console.log(e);
@@ -19,9 +19,8 @@ const LoginButton = () => {
 
   return (
     <Pressable onPress={onPress}  style={styles.login_button}>
-          <Text style={styles.login_text} >LOG IN</Text>
-    
-        </Pressable>
+      <Text style={styles.login_text} >LOG IN</Text>
+    </Pressable>
   )
 }
 

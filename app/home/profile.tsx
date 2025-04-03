@@ -4,7 +4,7 @@ import { useAuth0 } from 'react-native-auth0'
 import Logout from '../components/logout'
 import Waiting from '../components/waiting'
 import { useRouter } from 'expo-router';
-const edit = require('../../assets/images/edit.png');
+const edit = require('../../assets/images/edit.png'); 
 
 interface User {
   auth0_id:string
@@ -54,24 +54,35 @@ const profile = () => {
   const { authorize, user, error, getCredentials, isLoading } = useAuth0();
   //console.log("user: ", user);
   
-  async function fetchProfile(user:any){
-    let id = encodeURIComponent(user.sub)
-    try{
-    const response = await fetch('http://192.168.0.76:3001/api/users/'+id)
-    const json = await response.json()
+  async function fetchProfile(my_user:any){
+    const credentials = await getCredentials()
+    
+    if (!credentials?.accessToken){
+      await checkSession()
+    }
+    
+    let id = encodeURIComponent(my_user.sub)
+    
+    try {
+      const response = await fetch('http://192.168.0.76:3001/api/users/'+id, {
+        headers:{
+          Authorization: 'Bearer '+ credentials?.accessToken
+        }
+      })
+      const json = await response.json()
       //console.log("I GOT PROFILE", json);
-    setProfile(json)
-    setWaiting(false)
+      setProfile(json)
+      setWaiting(false)
 
     } catch (e){
-      console.log("ERROR FROM API", e);
+      console.error("ERROR FETCHING PROFILE", e);
     }
   }
   
   async function checkSession() {
     if (!user){
       try {
-        await authorize();
+        await authorize({audience:"https://moonlo-api"});
         await getCredentials();
        //console.log("user", user);
       } catch (e) {
@@ -110,6 +121,8 @@ const profile = () => {
     }
   }, [user]);
   
+  useEffect(()=>{console.log("PROFILE ", profile);
+  },[profile])
   
   return (
     <> 
