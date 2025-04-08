@@ -4,139 +4,35 @@ import { useAuth0 } from 'react-native-auth0'
 import Logout from '../components/logout'
 import Waiting from '../components/waiting'
 import { useRouter } from 'expo-router';
+import { useProfile  } from '../context/ProfileContext'
 const edit = require('../../assets/images/edit.png'); 
 
-interface User {
-  auth0_id:string
-  name:string
-  email:string
-  location:string
-  city:string
-  movies:string[]
-  books:string[]
-  music:string[]
-  yearOfBirth:string
-  aboutMe:string
-  gender:string
-  minAge:string
-  maxAge:string
-  sun:string
-  moon:string
-  asc:string
-  picture_url:string
-}
-
-const profile = () => {
+const Profile = () => {
 
   const [waiting, setWaiting] = useState<boolean>(true)
-
-  const [profile, setProfile] = useState<User>({
-    auth0_id: "",
-    name: "",
-    email: "",
-    location: "",
-    city: "",
-    movies: [],
-    books: [],
-    music: [],
-    yearOfBirth: "",
-    aboutMe: "",
-    gender: "",
-    minAge: "",
-    maxAge: "",
-    sun: "",
-    moon: "",
-    asc: "",
-    picture_url:""
-});
-
+  const { profile, setProfile } = useProfile();
   const router = useRouter();
-  const { authorize, user, error, getCredentials, isLoading } = useAuth0();
-  //console.log("user: ", user);
+  const { user } = useAuth0();
   
-  async function fetchProfile(my_user:any){
-    const credentials = await getCredentials()
-    
-    if (!credentials?.accessToken){
-      await checkSession()
+  useEffect(()=> {
+    if(profile.auth0_id){
+      setWaiting(false) 
     }
-    
-    let id = encodeURIComponent(my_user.sub)
-    
-    try {
-      const response = await fetch('http://192.168.0.76:3001/api/users/'+id, {
-        headers:{
-          Authorization: 'Bearer '+ credentials?.accessToken
-        }
-      })
-      const json = await response.json()
-      //console.log("I GOT PROFILE", json);
-      setProfile(json)
-      setWaiting(false)
-
-    } catch (e){
-      console.error("ERROR FETCHING PROFILE", e);
-    }
-  }
-  
-  async function checkSession() {
-    if (!user){
-      try {
-        await authorize({audience:"https://moonlo-api"});
-        await getCredentials();
-       //console.log("user", user);
-      } catch (e) {
-        console.log('Authentication error:', e);
-      }
-    }
-  }
-  
-  useEffect(() => {
-    checkSession();
-  }, []);
-  
-  useEffect(() => {
-    if (user) {
-      fetchProfile(user);
-    } else {
-      setProfile({
-        auth0_id: "",
-        name: "",
-        email: "",
-        location: "",
-        city: "",
-        movies: [],
-        books: [],
-        music: [],
-        yearOfBirth: "",
-        aboutMe: "",
-        gender: "",
-        minAge: "",
-        maxAge: "",
-        sun: "",
-        moon: "",
-        asc: "",
-        picture_url: ""
-      });
-    }
-  }, [user]);
-  
-  useEffect(()=>{console.log("PROFILE ", profile);
   },[profile])
   
   return (
     <> 
      {waiting && <Waiting />}
-     <ScrollView style={styles.scroll}>
+      <ScrollView style={styles.scroll}>
     
         <View style={styles.profileHead}>
           <View style={styles.picture_group}>
-              {user &&  (
+              {user && profile?.picture_url && (
               <View style={styles.profile_pic_container}>
                 <Image source={{uri: profile.picture_url}} style={styles.profile_pic} />
               </View>
               )}
-              {profile && <Text style={styles.profile_name}>{profile.name.split(" ")[0]}</Text>}
+              {user && profile?.name && <Text style={styles.profile_name}>{profile.name.split(" ")[0]}</Text>}
           </View>
           <View style={styles.match_me_container}>
             <Image source={edit} style={styles.edit_icon}/>
@@ -151,36 +47,46 @@ const profile = () => {
             </Pressable>
           </View>
         </View>
-
-        <View style={styles.signs_grid}>
           
-          <View style={styles.profile_moon}>
-            <Image source={require('../../assets/images/moon3d.png')} style={styles.moon_image} />
-            <View style={styles.sign_text_group}>
-              <Text style={styles.moon_title}>{profile.moon}</Text>
-              <Text style={styles.sign_text}>moon</Text>
-            </View>
-          </View>
-          <View style={styles.sun_flex}>
-            <View style={styles.profile_sign}>
+        {
+            profile?.moon && (
+          <View style={styles.signs_grid}>
               
-              <Image source={require('../../assets/images/sun3d.png')} style={styles.moon_image} />
-              <View style={styles.sign_text_group}>
-                <Text style={styles.sign_title}>{profile.sun}</Text>
-                <Text style={styles.sign_text}>sun</Text>
+              <View style={styles.profile_moon}>
+                <Image source={require('../../assets/images/moon3d.png')} style={styles.moon_image} />
+                <View style={styles.sign_text_group}>
+                  <Text style={styles.moon_title}>{profile.moon}</Text>
+                  <Text style={styles.sign_text}>moon</Text>
+                </View>
               </View>
+            
+              <View style={styles.sun_flex}>
+                
+                <View style={styles.profile_sign}>
+                 
+                 <Image source={require('../../assets/images/sun3d.png')} style={styles.moon_image} />
+                 <View style={styles.sign_text_group}>
+                  <Text style={styles.sign_title}>{profile.sun}</Text>
+                  <Text style={styles.sign_text}>sun</Text>
+                 </View>
+  
+                </View>
+                <View style={styles.profile_sign}>
 
-            </View>
-            <View style={styles.profile_sign}>
-              <Image source={require('../../assets/images/asc3d.png')} style={styles.asc_image} />
-              <View style={styles.sign_text_group}>
-                <Text style={styles.sign_title}>{profile.asc}</Text>
-                <Text style={styles.sign_text}>asc</Text>
+                  <Image source={require('../../assets/images/asc3d.png')} style={styles.asc_image} />
+                  <View style={styles.sign_text_group}>
+                    <Text style={styles.sign_title}>{profile.asc}</Text>
+                    <Text style={styles.sign_text}>asc</Text>
+                  </View>
+                
+                </View>
+              
               </View>
-            </View>
           </View>
-        </View>
-      
+           ) 
+          }
+          
+        
         <Text style={styles.section_title}>Bio</Text>
         <View style={styles.profile_bio}>
 
@@ -197,7 +103,7 @@ const profile = () => {
 
           </View>
           {
-            profile.movies.length>0 && profile.movies.map(movie => (
+            profile?.movies?.length>0 && profile.movies.map((movie:string) => (
               <Text style={styles.preference_text} key={movie}>• {movie}</Text>                
             ))
           } 
@@ -211,7 +117,7 @@ const profile = () => {
 
           </View>
           {
-            profile.books.length>0 && profile.books.map(book => (
+            profile?.books?.length>0 && profile.books.map((book:string) => (
               <Text style={styles.preference_text} key={book}>• {book}</Text>                
             ))
 
@@ -227,7 +133,7 @@ const profile = () => {
 
           </View>
           {
-            profile.music.length>0 && profile.music.map(music => (
+            profile?.music?.length>0 && profile.music.map((music:string) => (
               <Text style={styles.preference_text} key={music}>• {music}</Text>                
             ))
           } 
@@ -235,12 +141,12 @@ const profile = () => {
         
      
       <Logout />
-    </ScrollView>
+    </ScrollView> 
     </>
   )
 }
 
-export default profile
+export default Profile
 
 const styles = StyleSheet.create({
   

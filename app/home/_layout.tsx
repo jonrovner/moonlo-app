@@ -81,10 +81,6 @@ function HomeTabs() {
     }
   }, [user]);
 
-  useEffect(()=>{console.log("PROFILE IN LAYOUT", profile);
-  },[profile])
-
-
   return (
     
     <Tabs
@@ -128,6 +124,18 @@ function HomeTabs() {
          options={{
           href: {
             pathname: '/home/search',
+            params: {
+             ...profile
+            },
+          }
+        }}
+        //initialParams={{profile}}
+      />
+      <Tabs.Screen
+         name="profile"
+         options={{
+          href: {
+            pathname: '/home/profile',
             params: {
              ...profile
             },
