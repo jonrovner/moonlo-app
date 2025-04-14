@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { useFonts } from 'expo-font'; 
 import { ProfileProvider, useProfile } from '../context/ProfileContext';
 import * as SplashScreen from 'expo-splash-screen'; 
+import { ErrorDisplay } from '../components/ErrorDisplay';
+import { View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,6 +21,8 @@ export default function HomeLayout() {
 }
 
 function HomeTabs() {
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
   const [loaded, error] = useFonts({
     'Jaro': require('../../assets/fonts/Jaro-Regular-VariableFont_opsz.ttf'),
@@ -43,8 +47,10 @@ function HomeTabs() {
       try {
         await authorize({audience:"https://moonlo-api"});
         await getCredentials();
+        setAuthError(null);
       } catch (e) {
         console.log('Authentication error:', e);
+        setAuthError('Failed to authenticate. Please try again.');
       }
       } 
   }
@@ -56,16 +62,20 @@ function HomeTabs() {
       await checkSession()
     }
     try {
-      const response = await fetch('http://192.168.0.76:3001/api/users/'+id, {
+      const response = await fetch('https://moonlo-backend.onrender.com/api/users/'+id, {
         headers:{
           Authorization: 'Bearer '+ credentials?.accessToken
         }
       })
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
       const json = await response.json()
       setProfile(json)
-        
+      setProfileError(null);
     } catch (e){
       console.log("ERROR FROM API", e);
+      setProfileError('Failed to load profile. Please try again.');
     }
   }
 
@@ -81,8 +91,31 @@ function HomeTabs() {
     }
   }, [user]);
 
+  if (authError) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <ErrorDisplay 
+          message={authError}
+          onRetry={checkSession}
+          type="error"
+        />
+      </View>
+    );
+  }
+
+  if (profileError) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center' }}>
+        <ErrorDisplay 
+          message={profileError}
+          onRetry={() => user && fetchProfile(user)}
+          type="error"
+        />
+      </View>
+    );
+  }
+
   return (
-    
     <Tabs
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
@@ -104,7 +137,6 @@ function HomeTabs() {
         options={{
           href: null,
           tabBarShowLabel:false
-         
         }}
       />
       <Tabs.Screen
@@ -129,7 +161,6 @@ function HomeTabs() {
             },
           }
         }}
-        //initialParams={{profile}}
       />
       <Tabs.Screen
          name="profile"
@@ -141,9 +172,7 @@ function HomeTabs() {
             },
           }
         }}
-        //initialParams={{profile}}
       />
     </Tabs>
-   
-    );
-  }
+  );
+}

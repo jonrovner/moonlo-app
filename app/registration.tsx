@@ -8,12 +8,15 @@ import Signs from './registration/signs';
 import Preferences from './registration/preferences';
 import Waiting from './components/waiting';
 import * as FileSystem from 'expo-file-system';
+import * as Location from 'expo-location';
 
 const Registration = () => {
   
   const [waiting, setWaiting] = useState(true)
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [city, setCity] = useState<string>("");
+  const [locationError, setLocationError] = useState<string>("");
   
- 
   //auth0
   const { authorize, user, error, getCredentials, isLoading, clearSession } = useAuth0();
   
@@ -29,7 +32,7 @@ const Registration = () => {
   
   async function checkProfile(id:string){
     let credentials = await getCredentials()
-    let url = 'http://192.168.0.76:3001/api/users/'+ encodeURIComponent(id);
+    let url = 'https://moonlo-backend.onrender.com/api/users/'+ encodeURIComponent(id);
     try {
       const response = await fetch(url, {
         headers:{
@@ -62,7 +65,33 @@ const Registration = () => {
     
   }, [user])
 
-  
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setLocationError('Permission to access location was denied');
+        return;
+      }
+
+      try {
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation(location);
+        
+        // Get city name from coordinates
+        const geocode = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude
+        });
+        
+        if (geocode[0]?.city) {
+          setCity(geocode[0].city);
+        }
+      } catch (error) {
+        setLocationError('Could not get location');
+        console.error('Error getting location:', error);
+      }
+    })();
+  }, []);
 
   //non-auth0 profile attributes
   const [movies, setMovies] = useState<string[]>([]);
@@ -123,6 +152,10 @@ const Registration = () => {
     
     if (aboutMe.length < 16) { 
       errors.push("A self-description is required (at least 16 characters)");
+    }
+
+    if (!location || !city) {
+      errors.push("Location information is required. Please enable location services.");
     }
     
     return errors;
@@ -222,8 +255,11 @@ const Registration = () => {
       auth0_id:user?.sub,
       name: user?.name,
       email: user?.email,
-      location: {latitude: user?.lat, logitude:user?.lon},
-      city:user?.city,
+      location: {
+        latitude: location?.coords.latitude.toString() || "",
+        longitude: location?.coords.longitude.toString() || ""
+      },
+      city: city,
       movies,
       books,
       music,
@@ -239,7 +275,7 @@ const Registration = () => {
     try {
       let credentials = await getCredentials()
 
-      fetch('http://192.168.0.76:3001/api/users', {
+      fetch('https://moonlo-backend.onrender.com/api/users', {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
@@ -336,7 +372,7 @@ const Registration = () => {
           <Text style={styles.summaryText}>Name: {user?.name}</Text>
           <Text style={styles.summaryText}>Gender: {gender}</Text>
           <Text style={styles.summaryText}>Born: {yearOfBirth}</Text>
-          <Text style={styles.summaryText}>Location: {user?.city}</Text>
+          <Text style={styles.summaryText}>Location: {city}</Text>
           <Text style={styles.summaryText}>Sun: {sun}</Text>
           <Text style={styles.summaryText}>Moon: {moon}</Text>
           <Text style={styles.summaryText}>Ascendant: {asc}</Text>

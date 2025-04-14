@@ -38,7 +38,7 @@ const Search = () => {
   const fetchUsers = async (moon:string) => {
     try {
       const credentials = await getCredentials()
-      const response = await fetch('http://192.168.0.76:3001/api/users/moon/'+moon,{
+      const response = await fetch('https://moonlo-backend.onrender.com/api/users/moon/'+moon,{
         headers:{
           Authorization: 'Bearer '+credentials?.accessToken
         }

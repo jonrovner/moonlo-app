@@ -23,7 +23,7 @@ const Profile_view = () => {
   async function getUserDetails(id:string){
     const credentials = await getCredentials()
     try {
-      const response = await fetch('http://192.168.0.76:3001/api/users/'+id, {
+      const response = await fetch('https://moonlo-backend.onrender.com/api/users/'+id, {
         headers:{
           Authorization: 'Bearer '+ credentials?.accessToken
         }

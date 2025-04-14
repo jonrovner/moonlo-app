@@ -38,7 +38,7 @@ const Favs = () => {
          
           let id = encodeURIComponent(userId)
           
-          let response = await fetch(`http://192.168.0.76:3001/api/users/${id}`, {
+          let response = await fetch(`https://moonlo-backend.onrender.com/api/users/${id}`, {
             headers: {
               Authorization: `Bearer ${credentials?.accessToken}`
             }
