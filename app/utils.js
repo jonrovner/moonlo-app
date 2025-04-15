@@ -1,5 +1,5 @@
-
 const TMDB_API_KEY = "453d1bffb0f33c4c6bb80d7b67a47709"; // Replace with your actual API key
+import { fetchWithTimeout } from './utils/fetchWithTimeout';
     
 export async function fetchMovies (query) {
       const words = query.trim().split(/\s+/); // Split query into words
@@ -7,12 +7,11 @@ export async function fetchMovies (query) {
       // Don't search if there are no words
       if (words.length === 0) return [];
 
-  // If the first word is "The", wait for a second word
+      // If the first word is "The", wait for a second word
       if (words[0].toLowerCase() === "the" && words.length < 2) return [];
 
-    
       try {
-        const response = await fetch(
+        const response = await fetchWithTimeout(
           `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&api_key=${TMDB_API_KEY}&language=en-US&page=1&include_adult=false`
         );
     
@@ -40,7 +39,7 @@ export async function fetchBooks (query) {
   if (!query) return [];
 
   try {
-    const response = await fetch(
+    const response = await fetchWithTimeout(
       `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`
     );
     console.log("response", response);
@@ -63,7 +62,7 @@ export async function fetchMusic (query) {
   /* if (!query) return [];
 
   try {
-    const response = await fetch(`https://api.deezer.com/search?q=artist:${encodeURIComponent(query)}`);
+    const response = await fetchWithTimeout(`https://api.deezer.com/search?q=artist:${encodeURIComponent(query)}`);
     
     console.log('response: ', response);
     

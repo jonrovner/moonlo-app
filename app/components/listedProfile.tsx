@@ -1,6 +1,7 @@
 import React from 'react'
 import { TouchableOpacity, Image, StyleSheet, Text, View, Pressable } from 'react-native'
 import { router } from 'expo-router';
+import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 interface Props {
     faved:boolean
@@ -47,7 +48,7 @@ const ListedProfile: React.FC<Props>  = ({user, me, faved}) => {
     let myId = encodeURIComponent(me.auth0_id)
 
     try{
-      let response = await fetch('http://192.168.0.76:3001/api/users/'+myId+"/favs", {
+      let response = await fetchWithTimeout('http://192.168.0.76:3001/api/users/'+myId+"/favs", {
         method:'POST',
         headers: {
           "Content-Type": "application/json"
@@ -132,23 +133,110 @@ const ListedProfile: React.FC<Props>  = ({user, me, faved}) => {
 export default ListedProfile
 
 const styles = StyleSheet.create({
-  background_image:{width:'100%', height:'100%', },
-  title_bar:{backgroundColor:'#BBBDDE50', height:100, display:'flex', flexDirection:'row', padding:10, justifyContent:'space-between', alignItems:'center'},
-  title_image:{height:70, width:70},
-  title_text:{fontSize:24},
-  user_profile_container:{backgroundColor:'#BBBDDE50', margin:10, padding:10, borderRadius:10},
-  profile_pic:{flex:1, borderRadius:20},
-  picture_group:{display:'flex', flexDirection:'row', padding:2, gap:15, justifyContent:'center'},
-  details_container:{flex:1, display:'flex', gap:20, justifyContent:'flex-start', alignItems:'center'},
-  picture_title:{fontSize:24, fontWeight:'bold'},
-  signs_container:{display:'flex', flexDirection:'row', gap:10},
-  sign:{flex:1, backgroundColor:'#8184BE40', display:'flex', padding:10, justifyContent:'center', borderRadius:15},
-  sign_image:{width:30, height:30},
-  buttons_row:{marginBlockStart: 10, display:'flex', flexDirection:'row', justifyContent:'space-between', gap:20},
-  see_profile_text:{color:'white', textAlign:'center'},
-  pink_heart:{flex:1, height:50, alignSelf:'center'},
-  see_profile_button:{flex:3, padding:15, backgroundColor:'#161954', borderRadius:15},
-  request_message_button:{marginBlockStart: 10, backgroundColor:'#7679B9', borderRadius:15, padding:15},
-  request_message_text:{textAlign:'center', fontSize:18},
-  filter_icon:{marginBlockEnd:10}
+  background_image: {
+    width: '100%',
+    height: '100%',
+  },
+  title_bar: {
+    backgroundColor: '#BBBDDE50',
+    height: 100,
+    display: 'flex',
+    flexDirection: 'row',
+    padding: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  title_image: {
+    height: 70,
+    width: 70
+  },
+  title_text: {
+    fontSize: 24
+  },
+  user_profile_container: {
+    backgroundColor: '#BBBDDE50',
+    margin: 10,
+    padding: 15,
+    borderRadius: 15
+  },
+  profile_pic: {
+    width: 100,
+    height: 100,
+    borderRadius: 20
+  },
+  picture_group: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 15,
+    alignItems: 'center'
+  },
+  details_container: {
+    flex: 1,
+    display: 'flex',
+    gap: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  picture_title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#161954'
+  },
+  signs_container: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 10,
+    width: '100%'
+  },
+  sign: {
+    flex: 1,
+    backgroundColor: '#8184BE40',
+    display: 'flex',
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 15
+  },
+  sign_image: {
+    width: 30,
+    height: 30
+  },
+  buttons_row: {
+    marginTop: 15,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 10
+  },
+  see_profile_text: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+  pink_heart: {
+    width: 50,
+    height: 50
+  },
+  see_profile_button: {
+    flex: 3,
+    padding: 12,
+    backgroundColor: '#161954',
+    borderRadius: 15
+  },
+  request_message_button: {
+    marginTop: 10,
+    backgroundColor: '#7679B9',
+    borderRadius: 15,
+    padding: 12
+  },
+  request_message_text: {
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white'
+  },
+  filter_icon: {
+    marginBottom: 10
+  }
 })

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useProfile } from '../context/ProfileContext'
 import { useAuth0 } from 'react-native-auth0'
 import ListedProfile from '../components/listedFav'
+import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 interface User {
   auth0_id: string;
@@ -35,17 +36,15 @@ const Favs = () => {
       const credentials = await getCredentials()
       const results:any = await Promise.all(
         profile.favs.map(async (userId: string) => {
-         
           let id = encodeURIComponent(userId)
           
-          let response = await fetch(`https://moonlo-backend.onrender.com/api/users/${id}`, {
+          let response = await fetchWithTimeout(`https://moonlo-backend.onrender.com/api/users/${id}`, {
             headers: {
               Authorization: `Bearer ${credentials?.accessToken}`
             }
           })
 
           let json = await response.json()
-        
           return json
         })
       )

@@ -5,6 +5,7 @@ import ListedProfile from '../components/listedProfile'
 import Waiting from '../components/waiting'
 import { useLocalSearchParams } from 'expo-router';
 import { useProfile  } from '../context/ProfileContext'
+import { fetchWithTimeout } from '../utils/fetchWithTimeout';
 
 interface User {
   auth0_id: string
@@ -38,7 +39,7 @@ const Search = () => {
   const fetchUsers = async (moon:string) => {
     try {
       const credentials = await getCredentials()
-      const response = await fetch('https://moonlo-backend.onrender.com/api/users/moon/'+moon,{
+      const response = await fetchWithTimeout('https://moonlo-backend.onrender.com/api/users/moon/'+moon,{
         headers:{
           Authorization: 'Bearer '+credentials?.accessToken
         }

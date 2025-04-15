@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, Text, View, Image, TouchableOpacity } from 'rea
 import { usePathname } from 'expo-router';
 import React, {useEffect, useState} from 'react'
 import { useAuth0 } from 'react-native-auth0';
+import { fetchWithTimeout } from '../utils/fetchWithTimeout';
 
 const Profile_view = () => {
 
@@ -23,7 +24,7 @@ const Profile_view = () => {
   async function getUserDetails(id:string){
     const credentials = await getCredentials()
     try {
-      const response = await fetch('https://moonlo-backend.onrender.com/api/users/'+id, {
+      const response = await fetchWithTimeout('https://moonlo-backend.onrender.com/api/users/'+id, {
         headers:{
           Authorization: 'Bearer '+ credentials?.accessToken
         }

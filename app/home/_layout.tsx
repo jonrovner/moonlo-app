@@ -7,6 +7,7 @@ import { ProfileProvider, useProfile } from '../context/ProfileContext';
 import * as SplashScreen from 'expo-splash-screen'; 
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import { View } from 'react-native';
+import { fetchWithTimeout } from '../utils/fetchWithTimeout';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -62,7 +63,7 @@ function HomeTabs() {
       await checkSession()
     }
     try {
-      const response = await fetch('https://moonlo-backend.onrender.com/api/users/'+id, {
+      const response = await fetchWithTimeout('https://moonlo-backend.onrender.com/api/users/'+id, {
         headers:{
           Authorization: 'Bearer '+ credentials?.accessToken
         }

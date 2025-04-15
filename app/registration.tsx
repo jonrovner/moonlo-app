@@ -9,6 +9,7 @@ import Preferences from './registration/preferences';
 import Waiting from './components/waiting';
 import * as FileSystem from 'expo-file-system';
 import * as Location from 'expo-location';
+import { fetchWithTimeout } from './utils/fetchWithTimeout';
 
 const Registration = () => {
   
@@ -34,7 +35,7 @@ const Registration = () => {
     let credentials = await getCredentials()
     let url = 'https://moonlo-backend.onrender.com/api/users/'+ encodeURIComponent(id);
     try {
-      const response = await fetch(url, {
+      const response = await fetchWithTimeout(url, {
         headers:{
           Authorization: 'Bearer ' + credentials?.accessToken
         }
@@ -42,15 +43,11 @@ const Registration = () => {
       const json = await response.json()
       if (json.auth0_id){
         console.log("FOUND USER");
-        
         router.navigate("/home/profile")
       }
-
-
-  } catch (e){
-    console.log("error checking profile", e);
-    
-  }
+    } catch (e){
+      console.log("error checking profile", e);
+    }
   }
 
   useEffect(()=>{
@@ -271,29 +268,25 @@ const Registration = () => {
       asc,
       encodedImage
     }
-      console.log("DATA: ", data.encodedImage?.substring(0,20))
+    console.log("DATA: ", data.encodedImage?.substring(0,20))
     try {
       let credentials = await getCredentials()
 
-      fetch('https://moonlo-backend.onrender.com/api/users', {
+      const response = await fetchWithTimeout('https://moonlo-backend.onrender.com/api/users', {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
           "Authorization": 'Bearer '+ credentials?.accessToken
         },
         body: JSON.stringify(data)
-      }).then(response => { 
-        response.json().then(json => {
-        console.log("JSON", json);
-         if (json.new_user){
-
-           router.navigate('/home/profile')
-         } 
-        
-      })})
-        
-
-    }catch(e){
+      })
+      
+      const json = await response.json()
+      console.log("JSON", json);
+      if (json.new_user){
+        router.navigate('/home/profile')
+      }
+    } catch(e){
       console.log("ERROR POSTING", e);   
     }
   };
