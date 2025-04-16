@@ -8,6 +8,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { ErrorDisplay } from '../components/ErrorDisplay';
 import { View } from 'react-native';
 import { fetchWithTimeout } from '../utils/fetchWithTimeout';
+import Waiting from '../components/waiting';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -24,6 +25,7 @@ export default function HomeLayout() {
 function HomeTabs() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [loaded, error] = useFonts({
     'Jaro': require('../../assets/fonts/Jaro-Regular-VariableFont_opsz.ttf'),
@@ -40,7 +42,7 @@ function HomeTabs() {
      return null;
    }
 
-  const { authorize, user, getCredentials, isLoading } = useAuth0();
+  const { authorize, user, getCredentials, isLoading: auth0IsLoading } = useAuth0();
   const {profile, setProfile} = useProfile();
 
   async function checkSession() {
@@ -74,9 +76,11 @@ function HomeTabs() {
       const json = await response.json()
       setProfile(json)
       setProfileError(null);
+      setIsLoading(false);
     } catch (e){
       console.log("ERROR FROM API", e);
       setProfileError('Failed to load profile. Please try again.');
+      setIsLoading(false);
     }
   }
 
@@ -91,6 +95,10 @@ function HomeTabs() {
       setProfile({});
     }
   }, [user]);
+
+  if (isLoading) {
+    return <Waiting />;
+  }
 
   if (authError) {
     return (

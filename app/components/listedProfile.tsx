@@ -4,25 +4,26 @@ import { router } from 'expo-router';
 import { fetchWithTimeout } from '../utils/fetchWithTimeout'
 
 interface Props {
-    faved:boolean
-    user:{
-        auth0_id:string,
-        picture_url:string,
-        name:string,
-        city:string,
-        sun:string,
-        asc:string,
-        email:string
+    faved: boolean
+    user: {
+        auth0_id: string,
+        picture_url: string,
+        name: string,
+        city: string,
+        sun: string,
+        asc: string,
+        email: string
     },
-    me:{
-      auth0_id:string,
-      picture_url:string,
-      name:string,
-      email:string
-    }
+    me: {
+        auth0_id: string,
+        picture_url: string,
+        name: string,
+        email: string
+    },
+    onFavoriteChange: (userId: string, isFavorited: boolean) => void
 }
 
-const ListedProfile: React.FC<Props>  = ({user, me, faved}) => {
+const ListedProfile: React.FC<Props> = ({ user, me, faved, onFavoriteChange }) => {
 
   const onProfileView = (id:string) => {
     router.navigate(`/home/${id}`)
@@ -44,23 +45,23 @@ const ListedProfile: React.FC<Props>  = ({user, me, faved}) => {
     router.navigate(`/chat?${query.toString()}`)
   }
 
-  const onAddToFavs = async () =>{
+  const onAddToFavs = async () => {
     let myId = encodeURIComponent(me.auth0_id)
 
-    try{
-      let response = await fetchWithTimeout('http://192.168.0.76:3001/api/users/'+myId+"/favs", {
-        method:'POST',
+    try {
+      let response = await fetchWithTimeout('https://moonlo-backend.onrender.com/api/users/'+myId+"/favs", {
+        method: 'POST',
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({user_id:user.auth0_id})
+        body: JSON.stringify({user_id: user.auth0_id})
       })
       let json = await response.json()
       console.log("json : ", json);
-      if (json.message){
-        faved = true
+      if (json.message) {
+        onFavoriteChange(user.auth0_id, true)
       }
-    }catch(e){
+    } catch(e) {
       console.log("ERROR ADDING TO FAV ", e);
     }
   }
@@ -122,8 +123,7 @@ const ListedProfile: React.FC<Props>  = ({user, me, faved}) => {
            
               </View>
               <TouchableOpacity onPress={onRequestMessage} style={styles.request_message_button} >
-            <Text style={styles.request_message_text}>REQUEST MESSAGGE</Text>
-    
+                <Text style={styles.request_message_text}>REQUEST MESSAGGE</Text>
               </TouchableOpacity>
            
            </View> 
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   signs_container: {
     display: 'flex',
     flexDirection: 'row',
-    gap: 10,
+    gap: 5,
     width: '100%'
   },
   sign: {

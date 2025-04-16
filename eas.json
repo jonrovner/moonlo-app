@@ -6,13 +6,22 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "OPENAI_API_KEY": "@openai_api_key"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "OPENAI_API_KEY": "@openai_api_key"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "OPENAI_API_KEY": "@openai_api_key"
+      }
     }
   },
   "submit": {

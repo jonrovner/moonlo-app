@@ -30,9 +30,7 @@ const Search = () => {
   const {getCredentials} = useAuth0()
   const [waiting, setWaiting] = useState<boolean>(true)
   const { profile, setProfile } = useProfile();
-
-  console.log("PROFILE IN SEARCH", profile);
-  const favs = String(profile.favs).split(",")
+  const favs = profile.favs ? String(profile.favs).split(",").filter(Boolean) : [];
   
   const [users, setUsers] = useState<User[]>([])
 
@@ -96,9 +94,33 @@ const Search = () => {
         picture_url:String(profile.picture_url),
         name:String(profile.name),
         email:String(profile.email)
-      }
+      }}
+      onFavoriteChange={(userId, isFavorited) => {
+        setUsers(prevUsers => 
+          prevUsers.map(user => 
+            user.auth0_id === userId 
+              ? { ...user, faved: isFavorited } 
+              : user
+          )
+        );
 
-      } />
+        if (isFavorited) {
+          if (!favs.includes(userId)) {
+            const newFavs = [...favs, userId];
+            setProfile((prev: typeof profile) => ({
+              ...prev,
+              favs: newFavs.join(',')
+            }));
+          }
+        } else {
+          const newFavs = favs.filter(id => id !== userId);
+          setProfile((prev: typeof profile) => ({
+            ...prev,
+            favs: newFavs.join(',')
+          }));
+        }
+      }}
+      />
      
       ))}
       </ScrollView>
