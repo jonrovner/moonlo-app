@@ -70,7 +70,7 @@
       "eas": {
         "projectId": "c2539bb1-5c96-4cf4-a2a5-80015c0bf01a"
       },
-      "openaiApiKey": "process.env.OPENAI_API_KEY"
+      "openaiApiKey": "${OPENAI_API_KEY}"
     }
   }
 }

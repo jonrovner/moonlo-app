@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import Constants from 'expo-constants';
 
 const openai = new OpenAI({
-  apiKey: Constants.expoConfig?.extra?.openaiApiKey,
+  apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY || Constants.expoConfig?.extra?.openaiApiKey,
 });
 
 export async function analyzeAstrologicalCompatibility(
