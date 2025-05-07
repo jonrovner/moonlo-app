@@ -48,11 +48,13 @@ const Profile_view = () => {
     try {
       const compatibilityAnalysis = await analyzeAstrologicalCompatibility(
         {
+          name: currentUserProfile.name,
           sun: currentUserProfile.sun,
           moon: currentUserProfile.moon,
           asc: currentUserProfile.asc
         },
         {
+          name: profile.name,
           sun: profile.sun,
           moon: profile.moon,
           asc: profile.asc

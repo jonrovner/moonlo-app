@@ -1,5 +1,21 @@
-import { TouchableOpacity, KeyboardAvoidingView, ScrollView, StyleSheet, Image, Text, View, TextInput } from 'react-native'
+import { TouchableOpacity, KeyboardAvoidingView, ScrollView, StyleSheet, Image, Text, View, Platform } from 'react-native'
+import { Picker } from '@react-native-picker/picker'
 import React from 'react'
+
+const ZODIAC_SIGNS = [
+  'Aries',
+  'Taurus',
+  'Gemini',
+  'Cancer',
+  'Leo',
+  'Virgo',
+  'Libra',
+  'Scorpio',
+  'Sagittarius',
+  'Capricorn',
+  'Aquarius',
+  'Pisces'
+]
 
 interface Props {
     moon: string;
@@ -27,22 +43,60 @@ const Signs:React.FC<Props> = ({
                <View style={styles.inputGroup}>
                  <Image source={require('../../assets/images/moon3d.png')} style={styles.input_image} />
                  <Text style={styles.inputLabel}>Moon</Text>
-                 <TextInput style={styles.input} onChangeText={setMoon} />
+                 <View style={styles.pickerContainer}>
+                   <Picker
+                     selectedValue={moon}
+                     onValueChange={setMoon}
+                     style={styles.picker}
+                     mode="dropdown"
+                     itemStyle={styles.pickerItem}
+                   >
+                     <Picker.Item label="Select Moon Sign" value="" />
+                     {ZODIAC_SIGNS.map((sign) => (
+                       <Picker.Item key={sign} label={sign} value={sign} />
+                     ))}
+                   </Picker>
+                 </View>
                </View>
                <View style={styles.inputGroup}>
                  <Image source={require('../../assets/images/sun3d.png')} style={styles.input_image} />
                  <Text style={styles.inputLabel}>Sun</Text>
-                 <TextInput style={styles.input}  onChangeText={setSun}/>
+                 <View style={styles.pickerContainer}>
+                   <Picker
+                     selectedValue={sun}
+                     onValueChange={setSun}
+                     style={styles.picker}
+                     mode="dropdown"
+                     itemStyle={styles.pickerItem}
+                   >
+                     <Picker.Item label="Select Sun Sign" value="" />
+                     {ZODIAC_SIGNS.map((sign) => (
+                       <Picker.Item key={sign} label={sign} value={sign} />
+                     ))}
+                   </Picker>
+                 </View>
                </View>
                <View style={styles.inputGroup}>
                  <Image source={require('../../assets/images/asc3d.png')} style={styles.asc_image} />
                  <Text style={styles.inputLabel}>Ascendant</Text>
-                 <TextInput style={styles.input} onChangeText={setAsc} />
+                 <View style={styles.pickerContainer}>
+                   <Picker
+                     selectedValue={asc}
+                     onValueChange={setAsc}
+                     style={styles.picker}
+                     mode="dropdown"
+                     itemStyle={styles.pickerItem}
+                   >
+                     <Picker.Item label="Select Ascendant Sign" value="" />
+                     {ZODIAC_SIGNS.map((sign) => (
+                       <Picker.Item key={sign} label={sign} value={sign} />
+                     ))}
+                   </Picker>
+                 </View>
                </View>
                <TouchableOpacity style={styles.button} onPress={onSubmit}>
                <Text style={styles.buttonText}>Next</Text>
                </TouchableOpacity>
-   
              </View>
              </ScrollView>
              </KeyboardAvoidingView>
@@ -74,7 +128,25 @@ const styles = StyleSheet.create({
   input_image:{width:100, height:100, alignSelf:'center'},
   asc_image:{width:200, height:100, alignSelf:'center'},
   dealbraker:{width:'100%', display:'flex', flexDirection:'row', padding:10, backgroundColor:'#A7A3CA30', marginBlock:15, justifyContent:'space-between', alignItems:'center' },
-  picker:{padding:10},
+  picker:{
+    backgroundColor: '#A7A3CA',
+    borderRadius: 5,
+    height: Platform.OS === 'ios' ? 150 : 50,
+    width: '100%',
+    color: '#161954',
+    fontSize: 18,
+  },
+  pickerContainer: { 
+    backgroundColor: '#A7A3CA',
+    borderRadius: 5,
+    overflow: 'hidden',
+    marginVertical: 10,
+  },
+  pickerItem: {
+    fontSize: 18,
+    color: '#161954',
+    height: Platform.OS === 'ios' ? 150 : 50,
+  },
   picker_item:{padding:10, backgroundColor:"red"},
   background_image:{width:'100%', height:'100%', },
   age_input:{ width:'20%', backgroundColor: '#A7A3CA', height:50},
@@ -82,6 +154,4 @@ const styles = StyleSheet.create({
   summaryText:{margin:10, padding:10, backgroundColor:'#A7A3CA', borderRadius:5},
   nav_container:{padding: 20, display:'flex', flexDirection:'row', gap:'60', marginBlockStart:20, alignSelf:'center'},
   nav:{height:8, flex:1, backgroundColor:'#A7A3CA', borderRadius:4},
-  picture:{width: 200, height: 200, borderRadius: 100, alignSelf: 'center', marginTop: 20,}
-  
 })

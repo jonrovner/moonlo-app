@@ -33,28 +33,9 @@ export async function fetchMovies (query) {
 };
 
 export async function fetchBooks (query) {
- console.log("fetching books");
  
-
-  if (!query) return [];
-
-  try {
-    const response = await fetchWithTimeout(
-      `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=10`
-    );
-    console.log("response", response);
-    
-    const data = await response.json();
-    console.log('data ', data.items);
-    
-
-    return data.items
-      ? data.items.map((book) => book.volumeInfo.title)
-      : [];
-  } catch (error) {
-    console.error("Error fetching books:", error);
     return [];
-  }
+ 
 };
 
 export async function fetchMusic (query) {

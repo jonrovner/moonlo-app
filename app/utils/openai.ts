@@ -6,18 +6,18 @@ const openai = new OpenAI({
 });
 
 export async function analyzeAstrologicalCompatibility(
-  user1: { sun: string; moon: string; asc: string },
-  user2: { sun: string; moon: string; asc: string }
+  user1: { name: string; sun: string; moon: string; asc: string },
+  user2: { name: string; sun: string; moon: string; asc: string }
 ) {
   try {
-    const prompt = `Analyze the astrological compatibility between two people based on their signs:
+    const prompt = `Analyze the astrological compatibility between ${user1.name} and ${user2.name} based on their signs:
     
-    Person 1:
+    ${user1.name}:
     - Sun: ${user1.sun}
     - Moon: ${user1.moon}
     - Ascendant: ${user1.asc}
     
-    Person 2:
+    ${user2.name}:
     - Sun: ${user2.sun}
     - Moon: ${user2.moon}
     - Ascendant: ${user2.asc}
@@ -26,10 +26,10 @@ export async function analyzeAstrologicalCompatibility(
     1. Overall compatibility
     2. Emotional connection (Moon signs)
     3. Personality dynamics (Sun signs)
-    4. First impressions and physical attraction (Ascendant)
-    5. Potential challenges and strengths in the relationship
+    4. Potential challenges and strengths in the relationship
+    5. Suggested dating activities that would align with their astrological profiles and enhance their connection
     
-    Keep the analysis positive and constructive, while being honest about potential challenges.`;
+    Keep the analysis positive and constructive, while being honest about potential challenges. Use their names throughout the analysis to make it more personal. For the dating activities section, provide 3-5 specific suggestions that would appeal to both ${user1.name} and ${user2.name}'s astrological traits and help them bond.`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",

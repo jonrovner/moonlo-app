@@ -19,7 +19,7 @@ const Profile = () => {
       setWaiting(false) 
     }
   },[profile])
-  
+
   return (
     <> 
      {waiting && <Waiting />}
@@ -35,7 +35,9 @@ const Profile = () => {
               {user && profile?.name && <Text style={styles.profile_name}>{profile.name.split(" ")[0]}</Text>}
           </View>
           <View style={styles.match_me_container}>
-            <Image source={edit} style={styles.edit_icon}/>
+            <Pressable onPress={() => router.navigate('./edit-profile')}>
+              <Image source={edit} style={styles.edit_icon}/>
+            </Pressable>
             <Pressable onPress={()=> {router.navigate('./search')}} >
                <ImageBackground
                 source={require('../../assets/images/heart-baloon.png')}

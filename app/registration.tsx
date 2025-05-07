@@ -169,24 +169,18 @@ const Registration = () => {
   };
 
   const validateScreen1 = () => {
-    const validSigns = [
-      'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
-    ];
     const errors = [];
   
-    const cleanSign = (sign:string) => sign.trim().toLowerCase();
-    const isValidSign = (sign:string) => validSigns.map(s => s.toLowerCase()).includes(cleanSign(sign));
-  
-    if (!isValidSign(sun)) {
-      errors.push('Invalid Sun sign.');
+    if (!sun) {
+      errors.push('Please select your Sun sign.');
     }
   
-    if (!isValidSign(moon)) {
-      errors.push('Invalid Moon sign.');
+    if (!moon) {
+      errors.push('Please select your Moon sign.');
     }
   
-    if (!isValidSign(asc)) {
-      errors.push('Invalid Ascendant sign.');
+    if (!asc) {
+      errors.push('Please select your Ascendant sign.');
     }
   
     return errors;

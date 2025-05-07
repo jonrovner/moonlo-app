@@ -182,6 +182,13 @@ function HomeTabs() {
           }
         }}
       />
+      <Tabs.Screen
+        name="edit-profile"
+        options={{
+          href: null,
+          tabBarShowLabel:false
+        }}
+      />
     </Tabs>
   );
 }
